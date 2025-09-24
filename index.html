@@ -37,6 +37,10 @@
       margin: 8px 0;
       box-sizing: border-box;
     }
+    #toolkit-container {
+      margin-top: 20px;
+      /* The toolkit will inject the iframe here */
+    }
   </style>
 </head>
 <body>
@@ -56,17 +60,20 @@
     <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
     <input type="text" id="exp_year" placeholder="Expiration Year (YYYY)" required />
     <input type="text" id="cvv" placeholder="CVV" required />
-    <button type="submit">Submit Payment</button>
+    <button type="submit">Pay</button>
   </form>
 
-  <iframe id="checkout-iframe"></iframe>
+  <!-- Container for Toolkit iframe -->
+  <div id="toolkit-container"></div>
 
   <script>
-    const BACKEND_URL = 'https://rapyd-backend.vercel.app';
+    const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Replace with your backend URL
 
     // Show the card form
     document.getElementById('pay-direct-card').onclick = () => {
       document.getElementById('card-form').style.display = 'block';
+      // Hide toolkit container & iframe if visible
+      document.getElementById('toolkit-container').innerHTML = '';
     };
 
     // Handle card form submit
@@ -107,6 +114,10 @@
     // Hosted Page
     document.getElementById('pay-hosted-page').onclick = async () => {
       try {
+        // Hide card form & toolkit container
+        document.getElementById('card-form').style.display = 'none';
+        document.getElementById('toolkit-container').innerHTML = '';
+
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,9 +138,14 @@
       }
     };
 
-    // Toolkit (Iframe)
+    // Toolkit (iframe)
     document.getElementById('pay-toolkit').onclick = async () => {
       try {
+        // Hide card form & clear old toolkit iframe
+        document.getElementById('card-form').style.display = 'none';
+        const container = document.getElementById('toolkit-container');
+        container.innerHTML = '';
+
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -140,17 +156,61 @@
           }),
         });
         const data = await res.json();
-        if (data.redirect_url) {
-          const iframe = document.getElementById('checkout-iframe');
-          iframe.src = data.redirect_url;
-          iframe.style.display = 'block';
-        } else {
-          alert('No redirect URL received');
+
+        if (!data.checkout_id) {
+          alert('No checkout_id received');
+          return;
         }
+
+        // Load Rapyd Checkout Toolkit script dynamically if not loaded
+        if (!window.RapydCheckoutToolkit) {
+          const script = document.createElement('script');
+          script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
+          script.onload = () => {
+            renderToolkit(data.checkout_id);
+          };
+          document.body.appendChild(script);
+        } else {
+          renderToolkit(data.checkout_id);
+        }
+
       } catch (e) {
-        alert('Checkout session failed: ' + e.message);
+        alert('Toolkit session failed: ' + e.message);
       }
     };
+
+    function renderToolkit(checkoutId) {
+      const container = document.getElementById('toolkit-container');
+      container.innerHTML = ''; // clear container
+
+      const checkout = new RapydCheckoutToolkit({
+        id: checkoutId,
+        pay_button_text: "Pay with card",
+        pay_button_color: "#373737",
+        wait_on_payment_confirmation: false,
+        wait_on_payment_redirect: true,
+        close_on_complete: false,
+        page_type: "collection",
+        digital_wallets_buttons_only: false,
+        digital_wallets_include_methods: ["google_pay", "apple_pay"],
+        digital_wallets_buttons_customization: {
+          google_pay: { button_color: "black" },
+          apple_pay: { button_color: "black" },
+        },
+      });
+
+      checkout.displayCheckout();
+
+      window.addEventListener("onCheckoutPaymentSuccess", (event) => {
+        console.log("Payment succeeded:", event.detail);
+        alert('✅ Payment succeeded!');
+      });
+
+      window.addEventListener("onCheckoutPaymentFailure", (event) => {
+        console.error("Payment failed:", event.detail.error);
+        alert('❌ Payment failed.');
+      });
+    }
   </script>
 
 </body>
