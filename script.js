@@ -55,6 +55,7 @@ document.getElementById('pay-hosted-page').addEventListener('click', async () =>
       body: JSON.stringify({
         amount: 19.99,
         currency: 'USD',
+        country: 'DE',
         description: 'Cool T-Shirt',
       }),
     });
