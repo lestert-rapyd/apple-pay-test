@@ -52,15 +52,33 @@
   <button id="pay-hosted-page">Checkout Page</button><br />
   <button id="pay-toolkit">Checkout Toolkit</button>
 
+
   <!-- Direct card payment form -->
-  <form id="card-form">
+  <form id="card-form" style="max-width: 400px; margin: 20px auto;">
     <h3>Enter Card Details</h3>
-    <input type="text" id="name" placeholder="Name on Card" required />
-    <input type="text" id="number" placeholder="Card Number" required />
-    <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
-    <input type="text" id="exp_year" placeholder="Expiration Year (YYYY)" required />
-    <input type="text" id="cvv" placeholder="CVV" required />
-    <button type="submit">Pay</button>
+    <div style="display: flex; margin-bottom: 12px; align-items: center;">
+      <label for="name" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Name on Card:</label>
+      <input type="text" id="name" placeholder="John Doe" required style="flex: 2; padding: 8px;" />
+    </div>
+    <div style="display: flex; margin-bottom: 12px; align-items: center;">
+      <label for="number" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Card Number:</label>
+      <input type="text" id="number" placeholder="4111 1111 1111 1111" required style="flex: 2; padding: 8px;" />
+    </div>
+    <div style="display: flex; margin-bottom: 12px; align-items: center;">
+      <label for="exp_month" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Expiration Month (MM):</label>
+      <input type="text" id="exp_month" placeholder="12" required style="flex: 2; padding: 8px;" />
+    </div>
+    <div style="display: flex; margin-bottom: 12px; align-items: center;">
+      <label for="exp_year" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Expiration Year (YYYY):</label>
+      <input type="text" id="exp_year" placeholder="2025" required style="flex: 2; padding: 8px;" />
+    </div>
+    <div style="display: flex; margin-bottom: 20px; align-items: center;">
+      <label for="cvv" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">CVV:</label>
+      <input type="text" id="cvv" placeholder="123" required style="flex: 2; padding: 8px;" />
+    </div>
+    <div style="text-align: center;">
+      <button type="submit" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">Pay</button>
+    </div>
   </form>
 
   <!-- Container for Toolkit iframe -->
@@ -204,6 +222,11 @@
       window.addEventListener("onCheckoutPaymentSuccess", (event) => {
         console.log("Payment succeeded:", event.detail);
         alert('✅ Payment succeeded!');
+      });
+
+      window.addEventListener("onCheckoutPaymentFailure", (event) => {
+        console.error("Payment failed:", event.detail.error);
+        alert('❌ Payment failed.');
       });
 
       window.addEventListener("onCheckoutPaymentFailure", (event) => {
