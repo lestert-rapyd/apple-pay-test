@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple Shop</title>
+  <title>Simple Rapyd Shop</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,52 +24,96 @@
       margin-top: 20px;
       display: none;
     }
+    #card-form {
+      display: none;
+      text-align: left;
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    #card-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Buy: Cool T-Shirt</h1>
-  <p>Price: $19.99 USD</p>
+  <h1>Cool T-Shirt</h1>
+  <p>USD 19.99</p>
 
-  <button id="pay-direct-card">Pay with Direct Card (API)</button><br />
-  <button id="pay-hosted-page">Pay with Hosted Page (Redirect)</button><br />
-  <button id="pay-toolkit">Pay with Toolkit (Iframe)</button>
+  <button id="pay-direct-card">Direct API</button><br />
+  <button id="pay-hosted-page">Checkout Page</button><br />
+  <button id="pay-toolkit">Checkout Toolkit</button>
+
+  <!-- Direct card payment form -->
+  <form id="card-form">
+    <h3>Enter Card Details</h3>
+    <input type="text" id="name" placeholder="Name on Card" required />
+    <input type="text" id="number" placeholder="Card Number" required />
+    <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
+    <input type="text" id="exp_year" placeholder="Expiration Year (YYYY)" required />
+    <input type="text" id="cvv" placeholder="CVV" required />
+    <button type="submit">Submit Payment</button>
+  </form>
 
   <iframe id="checkout-iframe"></iframe>
 
   <script>
-    // CHANGE THIS TO YOUR BACKEND URL
     const BACKEND_URL = 'https://rapyd-backend.vercel.app';
 
-    // Direct Card Payment (calls backend, no redirect)
-    document.getElementById('pay-direct-card').onclick = async () => {
+    // Show the card form
+    document.getElementById('pay-direct-card').onclick = () => {
+      document.getElementById('card-form').style.display = 'block';
+    };
+
+    // Handle card form submit
+    document.getElementById('card-form').onsubmit = async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const number = document.getElementById('number').value;
+      const exp_month = document.getElementById('exp_month').value;
+      const exp_year = document.getElementById('exp_year').value;
+      const cvv = document.getElementById('cvv').value;
+
       try {
-        const res = await fetch(`${BACKEND_URL}/create-direct-payment`, {
+        const res = await fetch(`${BACKEND_URL}/api/create-direct-payment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amount: 19.99,
             currency: 'USD',
-            description: 'Cool T-Shirt',
+            description: 'T-Shirt',
+            card: {
+              name,
+              number,
+              expiration_month: exp_month,
+              expiration_year: exp_year,
+              cvv
+            }
           }),
         });
+
         const data = await res.json();
         alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
-      } catch (e) {
-        alert('Payment failed: ' + e.message);
+      } catch (err) {
+        alert('Payment failed: ' + err.message);
       }
     };
 
-    // Hosted Page Redirect
+    // Hosted Page
     document.getElementById('pay-hosted-page').onclick = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+        const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amount: 19.99,
             currency: 'USD',
-            description: 'Cool T-Shirt',
+            description: 'T-Shirt',
           }),
         });
         const data = await res.json();
@@ -79,20 +123,20 @@
           alert('No redirect URL received');
         }
       } catch (e) {
-        alert('Checkout session creation failed: ' + e.message);
+        alert('Checkout session failed: ' + e.message);
       }
     };
 
-    // Toolkit iframe
+    // Toolkit (Iframe)
     document.getElementById('pay-toolkit').onclick = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+        const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amount: 19.99,
             currency: 'USD',
-            description: 'Cool T-Shirt',
+            description: 'T-Shirt',
           }),
         });
         const data = await res.json();
@@ -104,7 +148,7 @@
           alert('No redirect URL received');
         }
       } catch (e) {
-        alert('Checkout session creation failed: ' + e.message);
+        alert('Checkout session failed: ' + e.message);
       }
     };
   </script>
