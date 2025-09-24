@@ -1,7 +1,113 @@
-<!-- Include Rapyd Checkout Toolkit script -->
-<script src="https://checkouttoolkit.rapyd.net"></script>
-<!-- If using sandbox, use the sandbox URL instead:
-<!-- https://sandboxcheckouttoolkit.rapyd.net -->
-<h1>Rapyd Checkout Toolkit Demo</h1>
-<!-- This is the container where the checkout iframe will render -->
-<div id="rapyd-checkout"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Buy: Cool T-Shirt</h1>
+  <p>Price: $19.99 USD</p>
+
+  <button id="pay-direct-card">Pay with Direct Card (API)</button><br />
+  <button id="pay-hosted-page">Pay with Hosted Page (Redirect)</button><br />
+  <button id="pay-toolkit">Pay with Toolkit (Iframe)</button>
+
+  <iframe id="checkout-iframe"></iframe>
+
+  <script>
+    // CHANGE THIS TO YOUR BACKEND URL
+    const BACKEND_URL = 'http://localhost:3000';
+
+    // Direct Card Payment (calls backend, no redirect)
+    document.getElementById('pay-direct-card').onclick = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/create-direct-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: 19.99,
+            currency: 'USD',
+            description: 'Cool T-Shirt',
+          }),
+        });
+        const data = await res.json();
+        alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
+      } catch (e) {
+        alert('Payment failed: ' + e.message);
+      }
+    };
+
+    // Hosted Page Redirect
+    document.getElementById('pay-hosted-page').onclick = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: 19.99,
+            currency: 'USD',
+            description: 'Cool T-Shirt',
+          }),
+        });
+        const data = await res.json();
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else {
+          alert('No redirect URL received');
+        }
+      } catch (e) {
+        alert('Checkout session creation failed: ' + e.message);
+      }
+    };
+
+    // Toolkit iframe
+    document.getElementById('pay-toolkit').onclick = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: 19.99,
+            currency: 'USD',
+            description: 'Cool T-Shirt',
+          }),
+        });
+        const data = await res.json();
+        if (data.redirect_url) {
+          const iframe = document.getElementById('checkout-iframe');
+          iframe.src = data.redirect_url;
+          iframe.style.display = 'block';
+        } else {
+          alert('No redirect URL received');
+        }
+      } catch (e) {
+        alert('Checkout session creation failed: ' + e.message);
+      }
+    };
+  </script>
+
+</body>
+</html>
