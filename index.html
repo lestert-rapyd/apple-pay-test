@@ -137,12 +137,19 @@
         document.getElementById('toolkit-container').innerHTML = '';
 
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
             amount: 19.99,
+            capture: true,
             currency: 'USD',
-            description: 'T-Shirt',
+            country: 'DE',
+            // Add your additional parameters here as per Rapyd docs
+            complete_payment_url: 'http://example.com/success',
+            cancel_payment_url: 'http://example.com/cancel',
+            complete_checkout_url: 'http://example.com/complete',
+            cancel_checkout_url: 'http://example.com/cancel_checkout',
+            description: 'Cool T-Shirt',
           }),
         });
         const data = await res.json();
@@ -166,11 +173,18 @@
 
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
             amount: 19.99,
+            capture: true,
             currency: 'USD',
-            description: 'T-Shirt',
+            country: 'DE',
+            // Add your additional parameters here as per Rapyd docs
+            complete_payment_url: 'http://example.com/success',
+            cancel_payment_url: 'http://example.com/cancel',
+            complete_checkout_url: 'http://example.com/complete',
+            cancel_checkout_url: 'http://example.com/cancel_checkout',
+            description: 'Cool T-Shirt',
           }),
         });
         const data = await res.json();
