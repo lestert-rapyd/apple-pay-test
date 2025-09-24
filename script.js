@@ -1,5 +1,5 @@
 // Put your real checkout page ID here
-const CHECKOUT_ID = "checkout_4397795399f87baebae2b20e6194cfe0";
+const CHECKOUT_ID = "checkout_53d76c77f5b496f34e6bb55ccc083739";
 
 window.onload = function () {
   // Initialize the toolkit
