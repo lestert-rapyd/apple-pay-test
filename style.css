@@ -1,0 +1,21 @@
+body {
+  margin: 1200;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #EAEAEA;
+}
+/* Style for the checkout container */
+#rapyd-checkout {
+  width: 500px; /* or 320px for mobile */ 
+  /* height: 100px; */
+  /* max-width: 90%; */
+  /* Do not set a fixed height, height is dynamic */
+  /* Optional: add border or shadow if you like */
+  /* box-shadow: 0 4px 10px rgba(0,0,0,0.1); */
+  background: white;
+  /* padding: 20px; */
+  border-radius: 12px;
+}
