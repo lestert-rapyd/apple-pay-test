@@ -55,13 +55,13 @@ document.getElementById('pay-hosted-page').addEventListener('click', async () =>
       body: JSON.stringify({
         amount: 19.99,
         capture: true,
-        currency: "USD",
-        country: "DE",
+        currency: 'USD',
+        country: 'DE',
         // Add your additional parameters here as per Rapyd docs
-        complete_payment_url: "http://example.com/success",
-        cancel_payment_url: "http://example.com/cancel",
-        complete_checkout_url: "http://example.com/complete",
-        cancel_checkout_url: "http://example.com/cancel_checkout",
+        complete_payment_url: 'http://example.com/success',
+        cancel_payment_url: 'http://example.com/cancel',
+        complete_checkout_url: 'http://example.com/complete',
+        cancel_checkout_url: 'http://example.com/cancel_checkout',
         description: 'Cool T-Shirt',
       }),
     });
@@ -87,13 +87,13 @@ document.getElementById('pay-toolkit').addEventListener('click', async () => {
       body: JSON.stringify({
         amount: 19.99,
         capture: true,
-        currency: "USD",
-        country: "DE",
+        currency: 'USD',
+        country: 'DE',
         // Add your additional parameters here as per Rapyd docs
-        complete_payment_url: "http://example.com/success",
-        cancel_payment_url: "http://example.com/cancel",
-        complete_checkout_url: "http://example.com/complete",
-        cancel_checkout_url: "http://example.com/cancel_checkout",
+        complete_payment_url: 'http://example.com/success',
+        cancel_payment_url: 'http://example.com/cancel',
+        complete_checkout_url: 'http://example.com/complete',
+        cancel_checkout_url: 'http://example.com/cancel_checkout',
         description: 'Cool T-Shirt',
       }),
     });
