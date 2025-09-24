@@ -1,5 +1,5 @@
 // Replace with your actual backend URL (your rapyd-server deployment URL)
-const BACKEND_URL = 'https://rapyd-backend-3dye6em4r-rapyd-se.vercel.app';
+const BACKEND_URL = 'https://rapyd-backend.vercel.app';
 
 // Show the direct card payment form when button clicked
 document.getElementById('pay-direct-card').addEventListener('click', () => {
