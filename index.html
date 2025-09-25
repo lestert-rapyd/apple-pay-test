@@ -2,102 +2,127 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple Rapyd Shop</title>
+  <title>Rapyd Shop – 2 Items</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
+      max-width: 700px;
       margin: 50px auto;
       padding: 20px;
       text-align: center;
     }
+
+    .product-list {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 30px;
+    }
+
+    .product {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 45%;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+
+    .product.selected {
+      border-color: #007bff;
+      background-color: #e0f0ff;
+    }
+
     button {
       margin: 10px;
       padding: 12px 20px;
       font-size: 16px;
       cursor: pointer;
     }
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: none;
-      margin-top: 20px;
-      display: none;
-    }
+
     #card-form {
       display: none;
+      margin-top: 30px;
       text-align: left;
-      margin-top: 20px;
       padding: 20px;
       border: 1px solid #ccc;
     }
+
     #card-form input {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
       box-sizing: border-box;
     }
+
     #toolkit-container {
       margin-top: 20px;
-      /* The toolkit will inject the iframe here */
     }
   </style>
 </head>
 <body>
 
-  <h1>Cool T-Shirt</h1>
-  <p>USD 19.99</p>
+  <h1>🛍️ Rapyd Demo Shop</h1>
+  <p>Select a product and choose your payment method:</p>
 
-  <button id="pay-direct-card">Direct API</button><br />
-  <button id="pay-hosted-page">Checkout Page</button><br />
-  <button id="pay-toolkit">Checkout Toolkit</button>
+  <div class="product-list">
+    <div class="product" data-product='{"name":"Cool T-Shirt","amount":19.99,"description":"Cool T-Shirt"}'>
+      <h3>Cool T-Shirt</h3>
+      <p>Price: $19.99</p>
+    </div>
+    <div class="product" data-product='{"name":"Stylish Hoodie","amount":39.99,"description":"Stylish Hoodie"}'>
+      <h3>Stylish Hoodie</h3>
+      <p>Price: $39.99</p>
+    </div>
+  </div>
 
+  <div>
+    <button id="pay-direct-card">💳 Pay with Card (Direct API)</button>
+    <button id="pay-hosted-page">🌐 Checkout Page (Redirect)</button>
+    <button id="pay-toolkit">🧰 Checkout Toolkit (Embedded)</button>
+  </div>
 
   <!-- Direct card payment form -->
-  <form id="card-form" style="max-width: 600px; margin: 20px auto;">
+  <form id="card-form">
     <h3>Enter Card Details</h3>
-    <div style="display: flex; margin-bottom: 12px; align-items: center;">
-      <label for="name" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Name on Card:</label>
-      <input type="text" id="name" placeholder="John Doe" required style="flex: 2; padding: 8px;" />
-    </div>
-    <div style="display: flex; margin-bottom: 12px; align-items: center;">
-      <label for="number" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Card Number:</label>
-      <input type="text" id="number" placeholder="4111 1111 1111 1111" required style="flex: 2; padding: 8px;" />
-    </div>
-    <div style="display: flex; margin-bottom: 12px; align-items: center;">
-      <label for="exp_month" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Expiration Month (MM):</label>
-      <input type="text" id="exp_month" placeholder="12" required style="flex: 2; padding: 8px;" />
-    </div>
-    <div style="display: flex; margin-bottom: 12px; align-items: center;">
-      <label for="exp_year" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">Expiration Year (YY):</label>
-      <input type="text" id="exp_year" placeholder="25" required style="flex: 2; padding: 8px;" />
-    </div>
-    <div style="display: flex; margin-bottom: 20px; align-items: center;">
-      <label for="cvv" style="flex: 1; min-width: 140px; text-align: right; padding-right: 10px;">CVV:</label>
-      <input type="text" id="cvv" placeholder="123" required style="flex: 2; padding: 8px;" />
-    </div>
-    <div style="text-align: center;">
-      <button type="submit" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">Pay</button>
-    </div>
+    <input type="text" id="name" placeholder="Name on Card" required />
+    <input type="text" id="number" placeholder="Card Number" required />
+    <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
+    <input type="text" id="exp_year" placeholder="Expiration Year (YY)" required />
+    <input type="text" id="cvv" placeholder="CVV" required />
+    <button type="submit">Submit Payment</button>
   </form>
 
-  <!-- Container for Toolkit iframe -->
+  <!-- Toolkit checkout container -->
   <div id="toolkit-container"></div>
 
   <script>
-    const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Replace with your backend URL
+    const BACKEND_URL = 'https://rapyd-backend.vercel.app';
 
-    // Show the card form
+    let selectedProduct = {
+      name: "Cool T-Shirt",
+      amount: 19.99,
+      description: "Cool T-Shirt"
+    };
+
+    // Handle product selection
+    const productDivs = document.querySelectorAll('.product');
+    productDivs.forEach(div => {
+      div.addEventListener('click', () => {
+        productDivs.forEach(d => d.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedProduct = JSON.parse(div.getAttribute('data-product'));
+      });
+    });
+
+    // Show card form
     document.getElementById('pay-direct-card').onclick = () => {
       document.getElementById('card-form').style.display = 'block';
-      // Hide toolkit container & iframe if visible
       document.getElementById('toolkit-container').innerHTML = '';
     };
 
-    // Handle card form submit
+    // Handle Direct API card form submit
     document.getElementById('card-form').onsubmit = async (e) => {
       e.preventDefault();
-
       const name = document.getElementById('name').value;
       const number = document.getElementById('number').value;
       const exp_month = document.getElementById('exp_month').value;
@@ -106,19 +131,14 @@
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/create-direct-payment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: 19.99,
+            amount: selectedProduct.amount,
             currency: 'USD',
             capture: true,
-            card: {
-              name,
-              number,
-              expiration_month: exp_month,
-              expiration_year: exp_year,
-              cvv
-            }
+            description: selectedProduct.description,
+            card: { name, number, expiration_month: exp_month, expiration_year: exp_year, cvv }
           }),
         });
 
@@ -129,106 +149,86 @@
       }
     };
 
-    // Hosted Page
+    // Hosted Page - redirect to Rapyd-hosted checkout
     document.getElementById('pay-hosted-page').onclick = async () => {
-      try {
-        // Hide card form & toolkit container
-        document.getElementById('card-form').style.display = 'none';
-        document.getElementById('toolkit-container').innerHTML = '';
+      document.getElementById('card-form').style.display = 'none';
+      document.getElementById('toolkit-container').innerHTML = '';
 
+      try {
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: 19.99,
-            capture: true,
+            amount: selectedProduct.amount,
             currency: 'USD',
-            country: 'DE',
-            // Add your additional parameters here as per Rapyd docs
-            complete_payment_url: 'http://example.com/success',
-            cancel_payment_url: 'http://example.com/cancel',
-            complete_checkout_url: 'http://example.com/complete',
-            cancel_checkout_url: 'http://example.com/cancel_checkout',
-            description: 'Cool T-Shirt',
+            country: 'US',
+            description: selectedProduct.description,
+            complete_checkout_url: 'https://example.com/success',
+            cancel_checkout_url: 'https://example.com/cancel',
           }),
         });
+
         const data = await res.json();
         if (data.redirect_url) {
           window.location.href = data.redirect_url;
         } else {
           alert('No redirect URL received');
         }
-      } catch (e) {
-        alert('Checkout session failed: ' + e.message);
+      } catch (err) {
+        alert('Error: ' + err.message);
       }
     };
 
-    // Toolkit (iframe)
+    // Checkout Toolkit (iframe)
     document.getElementById('pay-toolkit').onclick = async () => {
-      try {
-        // Hide card form & clear old toolkit iframe
-        document.getElementById('card-form').style.display = 'none';
-        const container = document.getElementById('toolkit-container');
-        container.innerHTML = '';
+      document.getElementById('card-form').style.display = 'none';
+      const container = document.getElementById('toolkit-container');
+      container.innerHTML = '';
 
+      try {
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: 19.99,
-            capture: true,
+            amount: selectedProduct.amount,
             currency: 'USD',
-            country: 'DE',
-            // Add your additional parameters here as per Rapyd docs
-            complete_payment_url: 'http://example.com/success',
-            cancel_payment_url: 'http://example.com/cancel',
-            complete_checkout_url: 'http://example.com/complete',
-            cancel_checkout_url: 'http://example.com/cancel_checkout',
-            description: 'Cool T-Shirt',
+            country: 'US',
+            description: selectedProduct.description,
+            complete_checkout_url: 'https://example.com/success',
+            cancel_checkout_url: 'https://example.com/cancel',
           }),
         });
-        const data = await res.json();
 
+        const data = await res.json();
         if (!data.checkout_id) {
           alert('No checkout_id received');
           return;
         }
 
-        // Load Rapyd Checkout Toolkit script dynamically if not loaded
+        // Load Rapyd Toolkit script if not already loaded
         if (!window.RapydCheckoutToolkit) {
           const script = document.createElement('script');
           script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
-          script.onload = () => {
-            renderToolkit(data.checkout_id);
-          };
+          script.onload = () => renderToolkit(data.checkout_id);
           document.body.appendChild(script);
         } else {
           renderToolkit(data.checkout_id);
         }
-
-      } catch (e) {
-        alert('Toolkit session failed: ' + e.message);
+      } catch (err) {
+        alert('Toolkit error: ' + err.message);
       }
     };
 
+    // Render Rapyd Checkout Toolkit
     function renderToolkit(checkoutId) {
-      const container = document.getElementById('toolkit-container');
-      container.innerHTML = ''; // clear container
-
       const checkout = new RapydCheckoutToolkit({
         id: checkoutId,
-        pay_button_text: "Pay with card",
+        pay_button_text: "Pay Now",
         pay_button_color: "#373737",
-        wait_on_payment_confirmation: false,
-        wait_on_payment_redirect: true,
         close_on_complete: false,
         page_type: "collection",
         digital_wallets_buttons_only: false,
         digital_wallets_include_methods: ["google_pay", "apple_pay"],
-        digital_wallets_buttons_customization: {
-          google_pay: { button_color: "black" },
-          apple_pay: { button_color: "black" },
-        },
       });
 
       checkout.displayCheckout();
@@ -242,13 +242,7 @@
         console.error("Payment failed:", event.detail.error);
         alert('❌ Payment failed.');
       });
-
-      window.addEventListener("onCheckoutPaymentFailure", (event) => {
-        console.error("Payment failed:", event.detail.error);
-        alert('❌ Payment failed.');
-      });
     }
   </script>
-
 </body>
 </html>
