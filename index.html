@@ -56,6 +56,7 @@
 
     #toolkit-container {
       margin-top: 20px;
+      min-height: 400px;
     }
   </style>
 </head>
@@ -104,7 +105,6 @@
       description: "Cool T-Shirt"
     };
 
-    // Handle product selection
     const productDivs = document.querySelectorAll('.product');
     productDivs.forEach(div => {
       div.addEventListener('click', () => {
@@ -114,13 +114,11 @@
       });
     });
 
-    // Show card form
     document.getElementById('pay-direct-card').onclick = () => {
       document.getElementById('card-form').style.display = 'block';
       document.getElementById('toolkit-container').innerHTML = '';
     };
 
-    // Handle Direct API card form submit
     document.getElementById('card-form').onsubmit = async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value;
@@ -142,8 +140,6 @@
           }),
         });
 
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
         const data = await res.json();
         alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
       } catch (err) {
@@ -151,7 +147,6 @@
       }
     };
 
-    // Hosted Page - redirect to Rapyd-hosted checkout
     document.getElementById('pay-hosted-page').onclick = async () => {
       document.getElementById('card-form').style.display = 'none';
       document.getElementById('toolkit-container').innerHTML = '';
@@ -170,8 +165,6 @@
           }),
         });
 
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
         const data = await res.json();
         if (data.data && data.data.redirect_url) {
           window.location.href = data.data.redirect_url;
@@ -183,10 +176,10 @@
       }
     };
 
-    // Checkout Toolkit (iframe)
     document.getElementById('pay-toolkit').onclick = async () => {
       document.getElementById('card-form').style.display = 'none';
       const container = document.getElementById('toolkit-container');
+      container.style.display = 'block';
       container.innerHTML = '';
 
       try {
@@ -202,8 +195,6 @@
             cancel_checkout_url: 'https://example.com/cancel',
           }),
         });
-
-        if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
         if (!data.data || !data.data.id) {
@@ -225,8 +216,10 @@
       }
     };
 
-    // Render Rapyd Checkout Toolkit
     function renderToolkit(checkoutId) {
+      const container = document.getElementById('toolkit-container');
+      container.innerHTML = ''; // Clear old content
+
       const checkout = new RapydCheckoutToolkit({
         id: checkoutId,
         pay_button_text: "Pay Now",
@@ -237,7 +230,13 @@
         digital_wallets_include_methods: ["google_pay", "apple_pay"],
       });
 
-      checkout.displayCheckout();
+      try {
+        checkout.attach(container); // Ensure it renders into the right container
+        checkout.displayCheckout();
+      } catch (err) {
+        console.error('Rapyd Toolkit render error:', err.message);
+        alert('❌ Failed to render Rapyd checkout.');
+      }
 
       window.addEventListener("onCheckoutPaymentSuccess", (event) => {
         console.log("Payment succeeded:", event.detail);
