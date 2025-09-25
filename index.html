@@ -55,8 +55,7 @@
     }
 
     #toolkit-container {
-      margin-top: 20px;
-      min-height: 400px;
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -94,7 +93,9 @@
   </form>
 
   <!-- Toolkit checkout container -->
-  <div id="toolkit-container"></div>
+  <div id="toolkit-container">
+    <div id="checkout"></div> <!-- ✅ Required for Rapyd Toolkit -->
+  </div>
 
   <script>
     const BACKEND_URL = 'https://rapyd-backend.vercel.app';
@@ -105,6 +106,7 @@
       description: "Cool T-Shirt"
     };
 
+    // Product selection
     const productDivs = document.querySelectorAll('.product');
     productDivs.forEach(div => {
       div.addEventListener('click', () => {
@@ -114,11 +116,13 @@
       });
     });
 
+    // Show direct card form
     document.getElementById('pay-direct-card').onclick = () => {
       document.getElementById('card-form').style.display = 'block';
-      document.getElementById('toolkit-container').innerHTML = '';
+      document.getElementById('toolkit-container').style.display = 'none';
     };
 
+    // Direct payment submission
     document.getElementById('card-form').onsubmit = async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value;
@@ -140,6 +144,7 @@
           }),
         });
 
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const data = await res.json();
         alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
       } catch (err) {
@@ -147,9 +152,10 @@
       }
     };
 
+    // Hosted page flow
     document.getElementById('pay-hosted-page').onclick = async () => {
       document.getElementById('card-form').style.display = 'none';
-      document.getElementById('toolkit-container').innerHTML = '';
+      document.getElementById('toolkit-container').style.display = 'none';
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
@@ -176,11 +182,11 @@
       }
     };
 
+    // Toolkit flow (embedded)
     document.getElementById('pay-toolkit').onclick = async () => {
       document.getElementById('card-form').style.display = 'none';
-      const container = document.getElementById('toolkit-container');
-      container.style.display = 'block';
-      container.innerHTML = '';
+      document.getElementById('toolkit-container').style.display = 'block';
+      document.getElementById('checkout').innerHTML = ''; // Clear previous checkout
 
       try {
         const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
@@ -202,24 +208,23 @@
           return;
         }
 
-        // Load Rapyd Toolkit script if not already loaded
+        const checkoutId = data.data.id;
+
         if (!window.RapydCheckoutToolkit) {
           const script = document.createElement('script');
           script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
-          script.onload = () => renderToolkit(data.data.id);
+          script.onload = () => renderToolkit(checkoutId);
           document.body.appendChild(script);
         } else {
-          renderToolkit(data.data.id);
+          renderToolkit(checkoutId);
         }
       } catch (err) {
         alert('Toolkit error: ' + err.message);
       }
     };
 
+    // Render embedded checkout
     function renderToolkit(checkoutId) {
-      const container = document.getElementById('toolkit-container');
-      container.innerHTML = ''; // Clear old content
-
       const checkout = new RapydCheckoutToolkit({
         id: checkoutId,
         pay_button_text: "Pay Now",
@@ -231,8 +236,7 @@
       });
 
       try {
-        checkout.attach(container); // Ensure it renders into the right container
-        checkout.displayCheckout();
+        checkout.displayCheckout(); // ✅ Correct rendering method
       } catch (err) {
         console.error('Rapyd Toolkit render error:', err.message);
         alert('❌ Failed to render Rapyd checkout.');
