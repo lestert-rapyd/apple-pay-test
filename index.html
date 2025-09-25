@@ -65,7 +65,7 @@
   <p>Select a product and choose your payment method:</p>
 
   <div class="product-list">
-    <div class="product" data-product='{"name":"Cool T-Shirt","amount":19.99,"description":"Cool T-Shirt"}'>
+    <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":19.99,"description":"Cool T-Shirt"}'>
       <h3>Cool T-Shirt</h3>
       <p>Price: $19.99</p>
     </div>
@@ -142,6 +142,8 @@
           }),
         });
 
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
         const data = await res.json();
         alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
       } catch (err) {
@@ -168,6 +170,8 @@
           }),
         });
 
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
         const data = await res.json();
         if (data.redirect_url) {
           window.location.href = data.redirect_url;
@@ -175,7 +179,7 @@
           alert('No redirect URL received');
         }
       } catch (err) {
-        alert('Error: ' + err.message);
+        alert('Error creating checkout session: ' + err.message);
       }
     };
 
@@ -198,6 +202,8 @@
             cancel_checkout_url: 'https://example.com/cancel',
           }),
         });
+
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
         if (!data.checkout_id) {
