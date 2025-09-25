@@ -173,8 +173,8 @@
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url;
+        if (data.data && data.data.redirect_url) {
+          window.location.href = data.data.redirect_url;
         } else {
           alert('No redirect URL received');
         }
@@ -206,7 +206,7 @@
         if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
         const data = await res.json();
-        if (!data.checkout_id) {
+        if (!data.data || !data.data.id) {
           alert('No checkout_id received');
           return;
         }
@@ -215,10 +215,10 @@
         if (!window.RapydCheckoutToolkit) {
           const script = document.createElement('script');
           script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
-          script.onload = () => renderToolkit(data.checkout_id);
+          script.onload = () => renderToolkit(data.data.id);
           document.body.appendChild(script);
         } else {
-          renderToolkit(data.checkout_id);
+          renderToolkit(data.data.id);
         }
       } catch (err) {
         alert('Toolkit error: ' + err.message);
