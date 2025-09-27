@@ -67,8 +67,8 @@ document.getElementById('pay-hosted-page').onclick = async () => {
         currency: 'USD',
         country: 'DE',
         description: selectedProduct.description,
-        complete_checkout_url: 'https://example.com/success',
-        cancel_checkout_url: 'https://example.com/cancel',
+        complete_checkout_url: 'https://rapydtoolkit.com/success',
+        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
       }),
     });
 
@@ -100,8 +100,8 @@ document.getElementById('pay-toolkit').onclick = async () => {
         currency: 'USD',
         country: 'DE',
         description: selectedProduct.description,
-        complete_checkout_url: 'https://example.com/success',
-        cancel_checkout_url: 'https://example.com/cancel',
+        complete_checkout_url: 'https://rapydtoolkit.com/success',
+        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
       }),
     });
 
