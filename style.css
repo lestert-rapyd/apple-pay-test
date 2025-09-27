@@ -126,3 +126,37 @@ button:disabled {
     width: 100%;
   }
 }
+
+.message {
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.message.success {
+  background-color: #e6f9ec;
+  color: #1a7f37;
+  border: 1px solid #b2e0c2;
+}
+
+.message.failed {
+  background-color: #ffeaea;
+  color: #a00;
+  border: 1px solid #e0b2b2;
+}
+
+.message a {
+  display: inline-block;
+  margin-top: 20px;
+  color: #0070f3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.message a:hover {
+  text-decoration: underline;
+}
