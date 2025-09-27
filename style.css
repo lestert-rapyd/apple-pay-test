@@ -1,61 +1,128 @@
+/* General resets and base styles */
 body {
-  font-family: Arial, sans-serif;
-  max-width: 700px;
-  margin: 50px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f8fa;
+  color: #333;
+  margin: 0;
   padding: 20px;
-  text-align: center;
+  line-height: 1.6;
 }
 
+h1 {
+  color: #222;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* Product list styling */
 .product-list {
   display: flex;
-  justify-content: space-around;
+  gap: 20px;
   margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
 .product {
-  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border: 2px solid #ddd;
   border-radius: 8px;
-  padding: 20px;
-  width: 45%;
-  background: #f9f9f9;
+  padding: 15px;
+  width: 200px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.product:hover {
+  border-color: #0070f3;
+  box-shadow: 0 4px 10px rgba(0, 112, 243, 0.1);
 }
 
 .product.selected {
-  border-color: #007bff;
-  background-color: #e0f0ff;
+  border-color: #0070f3;
+  background-color: #e6f0ff;
 }
 
+/* Buttons */
 button {
-  margin: 10px;
-  padding: 12px 20px;
-  font-size: 16px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  margin: 10px 5px 20px 0;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
 }
 
+button:hover {
+  background-color: #005bd1;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Card form styling */
 #card-form {
-  display: none;
-  margin-top: 30px;
-  text-align: left;
+  background-color: #fff;
   padding: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 400px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#card-form h3 {
+  margin-top: 0;
 }
 
 #card-form input {
-  width: 100%;
   padding: 10px;
-  margin: 8px 0;
-  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
 }
 
+#card-form button {
+  align-self: flex-start;
+}
+
+/* Toolkit container */
 #toolkit-container {
-  margin-top: 20px;
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f0f3f7;
+  border-radius: 8px;
+  border: 1px dashed #aaa;
+  min-height: 100px;
 }
 
-/* Example styling for the rapyd checkout container */
-#rapyd-checkout {
-  border: 2px solid #007bff;
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 20px;
+/* Responsive Design */
+@media (max-width: 600px) {
+  .product-list {
+    flex-direction: column;
+  }
+
+  .product {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  #card-form {
+    width: 100%;
+  }
 }
