@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Failed</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="message failed">
+    <h1>❌ Payment Failed</h1>
+    <p>Something went wrong with your payment. Please try again.</p>
+    <a href="index.html">← Back to Shop</a>
+  </div>
+</body>
+</html>
