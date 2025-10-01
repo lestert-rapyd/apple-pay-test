@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://rapyd-backend.vercel.app';
+const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Your backend endpoint
 
 let selectedProduct = {
   name: "Cool T-Shirt",
@@ -6,11 +6,14 @@ let selectedProduct = {
   description: "Cool T-Shirt"
 };
 
+let currentEnv = 'sandbox';  // Default environment
+
 // DOM references
 const cardForm = document.getElementById("card-form");
 const toolkitContainer = document.getElementById("toolkit-container");
 const redirectMsg = document.getElementById("redirect-msg");
 const defaultMsg = document.getElementById("default-msg");
+const envToggle = document.getElementById('env-toggle');  // Environment toggle dropdown
 
 // Utility to hide all panels
 function hideAllPanels() {
@@ -23,6 +26,12 @@ function hideAllPanels() {
 // Init: Hide everything except default message
 hideAllPanels();
 defaultMsg.classList.remove("hidden");
+
+// Listen for environment changes
+envToggle.addEventListener('change', (e) => {
+  currentEnv = e.target.value;
+  console.log(`Environment switched to: ${currentEnv}`);
+});
 
 // Handle product selection
 const productDivs = document.querySelectorAll('.product');
@@ -43,11 +52,13 @@ document.getElementById('pay-direct-card').onclick = () => {
 // Submit Direct Payment
 cardForm.onsubmit = async (e) => {
   e.preventDefault();
-  const name = document.getElementById('name').value;
-  const number = document.getElementById('number').value;
-  const exp_month = document.getElementById('exp_month').value;
-  const exp_year = document.getElementById('exp_year').value;
-  const cvv = document.getElementById('cvv').value;
+  const cardData = {
+    name: document.getElementById('name').value,
+    number: document.getElementById('number').value,
+    expiration_month: document.getElementById('exp_month').value,
+    expiration_year: document.getElementById('exp_year').value,
+    cvv: document.getElementById('cvv').value,
+  };
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/create-direct-payment`, {
@@ -58,7 +69,8 @@ cardForm.onsubmit = async (e) => {
         currency: 'USD',
         capture: true,
         description: selectedProduct.description,
-        card: { name, number, expiration_month: exp_month, expiration_year: exp_year, cvv }
+        env: currentEnv,  // Pass environment param
+        card: cardData
       }),
     });
 
@@ -71,11 +83,8 @@ cardForm.onsubmit = async (e) => {
   }
 };
 
-// Hosted Checkout
-document.getElementById('pay-hosted-page').onclick = async () => {
-  hideAllPanels();
-  redirectMsg.classList.remove("hidden");
-
+// Helper: Create checkout session for hosted page and toolkit
+async function createCheckoutSession() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
       method: 'POST',
@@ -87,45 +96,44 @@ document.getElementById('pay-hosted-page').onclick = async () => {
         description: selectedProduct.description,
         complete_checkout_url: 'https://rapydtoolkit.com/success',
         cancel_checkout_url: 'https://rapydtoolkit.com/failed',
+        env: currentEnv, // Pass environment param
       }),
     });
 
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
-    const data = await res.json();
+    return await res.json();
+  } catch (err) {
+    alert('Error creating checkout session: ' + err.message);
+    throw err;
+  }
+}
+
+// Hosted Checkout button
+document.getElementById('pay-hosted-page').onclick = async () => {
+  hideAllPanels();
+  redirectMsg.classList.remove("hidden");
+
+  try {
+    const data = await createCheckoutSession();
+
     if (data.data && data.data.redirect_url) {
       window.location.href = data.data.redirect_url;
     } else {
       alert('No redirect URL received');
     }
-  } catch (err) {
-    alert('Error creating checkout session: ' + err.message);
-  }
+  } catch {}
 };
 
-// Toolkit (Embedded)
+// Toolkit (Full)
 document.getElementById('pay-toolkit').onclick = async () => {
   hideAllPanels();
   toolkitContainer.classList.remove("hidden");
   toolkitContainer.innerHTML = '';
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: selectedProduct.amount,
-        currency: 'USD',
-        country: 'DE',
-        description: selectedProduct.description,
-        complete_checkout_url: 'https://rapydtoolkit.com/success',
-        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
-      }),
-    });
+    const data = await createCheckoutSession();
 
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
-    const data = await res.json();
     if (!data.data || !data.data.id) {
       alert('No checkout_id received');
       return;
@@ -135,7 +143,9 @@ document.getElementById('pay-toolkit').onclick = async () => {
 
     if (!window.RapydCheckoutToolkit) {
       const script = document.createElement('script');
-      script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
+      script.src = currentEnv === 'live'
+        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
+        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
       script.onload = () => renderToolkit(data.data.id);
       document.body.appendChild(script);
     } else {
@@ -146,29 +156,15 @@ document.getElementById('pay-toolkit').onclick = async () => {
   }
 };
 
-// AP GP only
+// Toolkit (AP/GP Wallets Only)
 document.getElementById('pay-toolkit-wallets').onclick = async () => {
   hideAllPanels();
   toolkitContainer.classList.remove("hidden");
   toolkitContainer.innerHTML = '';
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: selectedProduct.amount,
-        currency: 'USD',
-        country: 'DE',
-        description: selectedProduct.description,
-        complete_checkout_url: 'https://rapydtoolkit.com/success',
-        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
-      }),
-    });
+    const data = await createCheckoutSession();
 
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
-    const data = await res.json();
     if (!data.data || !data.data.id) {
       alert('No checkout_id received');
       return;
@@ -178,7 +174,9 @@ document.getElementById('pay-toolkit-wallets').onclick = async () => {
 
     if (!window.RapydCheckoutToolkit) {
       const script = document.createElement('script');
-      script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
+      script.src = currentEnv === 'live'
+        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
+        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
       script.onload = () => renderToolkitWallets(data.data.id);
       document.body.appendChild(script);
     } else {
@@ -188,7 +186,6 @@ document.getElementById('pay-toolkit-wallets').onclick = async () => {
     alert('Toolkit Wallets error: ' + err.message);
   }
 };
-
 
 // Render Full Rapyd Toolkit
 function renderToolkit(checkoutId) {
@@ -204,16 +201,16 @@ function renderToolkit(checkoutId) {
 
   checkout.displayCheckout();
 
-  window.addEventListener("onCheckoutPaymentSuccess", (event) => {
+  window.addEventListener("onCheckoutPaymentSuccess", () => {
     alert('✅ Payment succeeded!');
   });
 
-  window.addEventListener("onCheckoutPaymentFailure", (event) => {
+  window.addEventListener("onCheckoutPaymentFailure", () => {
     alert('❌ Payment failed.');
   });
 }
 
-// Render AP/GP Toolkit
+// Render AP/GP Wallets Only Rapyd Toolkit
 function renderToolkitWallets(checkoutId) {
   const checkout = new RapydCheckoutToolkit({
     id: checkoutId,
