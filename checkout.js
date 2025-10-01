@@ -1,104 +1,250 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rapyd Demo Shop</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    #env-toggle-container {
-      margin-bottom: 20px;
-      font-family: Arial, sans-serif;
+const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Your backend endpoint
+
+let selectedProduct = {
+  name: "Cool T-Shirt",
+  amount: "0.01",
+  description: "Cool T-Shirt"
+};
+
+let currentEnv = 'sandbox';  // Default environment
+
+// DOM references
+const cardForm = document.getElementById("card-form");
+const toolkitContainer = document.getElementById("toolkit-container");
+const redirectMsg = document.getElementById("redirect-msg");
+const defaultMsg = document.getElementById("default-msg");
+
+// Environment toggle radios
+const envRadios = document.querySelectorAll('input[name="env-toggle"]');
+
+// Utility to hide all panels
+function hideAllPanels() {
+  cardForm.classList.add("hidden");
+  toolkitContainer.classList.add("hidden");
+  redirectMsg.classList.add("hidden");
+  defaultMsg.classList.add("hidden");
+}
+
+// Init: Hide everything except default message
+hideAllPanels();
+defaultMsg.classList.remove("hidden");
+
+// Listen for environment changes properly
+envRadios.forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      currentEnv = e.target.value;
+      console.log(`Environment switched to: ${currentEnv}`);
     }
-    #env-toggle-container label {
-      margin-right: 15px;
-      cursor: pointer;
-      user-select: none;
+  });
+});
+
+// Handle product selection
+const productDivs = document.querySelectorAll('.product');
+productDivs.forEach(div => {
+  div.addEventListener('click', () => {
+    productDivs.forEach(d => d.classList.remove('selected'));
+    div.classList.add('selected');
+    selectedProduct = JSON.parse(div.getAttribute('data-product'));
+  });
+});
+
+// Pay with Card (Direct API)
+document.getElementById('pay-direct-card').onclick = () => {
+  hideAllPanels();
+  cardForm.classList.remove('hidden');
+};
+
+// Submit Direct Payment
+cardForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const cardData = {
+    name: document.getElementById('name').value,
+    number: document.getElementById('number').value,
+    expiration_month: document.getElementById('exp_month').value,
+    expiration_year: document.getElementById('exp_year').value,
+    cvv: document.getElementById('cvv').value,
+  };
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/create-direct-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: selectedProduct.amount,
+        currency: 'USD',
+        capture: true,
+        description: selectedProduct.description,
+        env: currentEnv,  // Pass environment param
+        card: cardData
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+    const data = await res.json();
+    alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
+  } catch (err) {
+    alert('Payment failed: ' + err.message);
+  }
+};
+
+// Helper: Create checkout session for hosted page and toolkit
+async function createCheckoutSession() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: selectedProduct.amount,
+        currency: 'USD',
+        country: 'DE',
+        description: selectedProduct.description,
+        complete_checkout_url: 'https://rapydtoolkit.com/success',
+        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
+        env: currentEnv, // Pass environment param
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+    return await res.json();
+  } catch (err) {
+    alert('Error creating checkout session: ' + err.message);
+    throw err;
+  }
+}
+
+// Hosted Checkout button
+document.getElementById('pay-hosted-page').onclick = async () => {
+  hideAllPanels();
+  redirectMsg.classList.remove("hidden");
+
+  try {
+    const data = await createCheckoutSession();
+
+    if (data.data && data.data.redirect_url) {
+      window.location.href = data.data.redirect_url;
+    } else {
+      alert('No redirect URL received');
     }
-  </style>
-</head>
-<body>
+  } catch {}
+};
 
-  <!-- Environment Toggle -->
-  <div id="env-toggle-container">
-    <strong>Environment:</strong>
-    <label>
-      <input type="radio" name="env-toggle" value="sandbox" checked />
-      Sandbox
-    </label>
-    <label>
-      <input type="radio" name="env-toggle" value="live" />
-      Live
-    </label>
-  </div>
+// Toolkit (Full)
+document.getElementById('pay-toolkit').onclick = async () => {
+  hideAllPanels();
+  toolkitContainer.classList.remove("hidden");
+  toolkitContainer.innerHTML = '';
 
-  <h1>🛍️ Rapyd Demo Shop</h1>
-  <p>Select a product and choose your payment method:</p>
+  try {
+    const data = await createCheckoutSession();
 
-  <!-- Shop Layout -->
-  <div class="shop-layout">
-    
-    <!-- LEFT PANEL -->
-    <div class="left-panel">
-      <div class="product-list">
-        <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"0.01","description":"Cool T-Shirt"}'>
-          <h3>Cool T-Shirt</h3>
-          <p>USD 0.01</p>
-        </div>
-        <div class="product" data-product='{"name":"Stylish Hoodie","amount":"0.02","description":"Stylish Dress"}'>
-          <h3>Stylish Dress</h3>
-          <p>USD 0.02</p>
-        </div>
-      </div>
+    if (!data.data || !data.data.id) {
+      alert('No checkout_id received');
+      return;
+    }
 
-      <div class="payment-buttons">
-        <button id="pay-direct-card">💳 Pay with Card (Direct API)</button>
-        <button id="pay-hosted-page">🌐 Checkout Page (Redirect)</button>
-        <button id="pay-toolkit">🧰 Checkout Toolkit (Embedded)</button>
-        <button id="pay-toolkit-wallets">🧾 Apple Pay or Google Pay</button>
-      </div>
-    </div>
+    toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
 
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-      <!-- Default message -->
-      <div id="default-msg" class="default-message">
-        <em>Please select a payment method to continue.</em>
-      </div>
+    if (!window.RapydCheckoutToolkit) {
+      const script = document.createElement('script');
+      script.src = currentEnv === 'live'
+        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
+        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
+      script.onload = () => renderToolkit(data.data.id);
+      document.body.appendChild(script);
+    } else {
+      renderToolkit(data.data.id);
+    }
+  } catch (err) {
+    alert('Toolkit error: ' + err.message);
+  }
+};
 
-      <!-- Direct card payment form -->
-      <form id="card-form" class="hidden">
-        <h3>Enter Card Details</h3>
+// Toolkit (AP/GP Wallets Only)
+document.getElementById('pay-toolkit-wallets').onclick = async () => {
+  hideAllPanels();
+  toolkitContainer.classList.remove("hidden");
+  toolkitContainer.innerHTML = '';
 
-        <label for="name">Name on Card</label>
-        <input type="text" id="name" required />
+  try {
+    const data = await createCheckoutSession();
 
-        <label for="number">Card Number</label>
-        <input type="text" id="number" required />
+    if (!data.data || !data.data.id) {
+      alert('No checkout_id received');
+      return;
+    }
 
-        <label for="exp_month">Expiration Month (MM)</label>
-        <input type="text" id="exp_month" required />
+    toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
 
-        <label for="exp_year">Expiration Year (YY)</label>
-        <input type="text" id="exp_year" required />
+    if (!window.RapydCheckoutToolkit) {
+      const script = document.createElement('script');
+      script.src = currentEnv === 'live'
+        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
+        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
+      script.onload = () => renderToolkitWallets(data.data.id);
+      document.body.appendChild(script);
+    } else {
+      renderToolkitWallets(data.data.id);
+    }
+  } catch (err) {
+    alert('Toolkit Wallets error: ' + err.message);
+  }
+};
 
-        <label for="cvv">CVV</label>
-        <input type="text" id="cvv" required />
+// Render Full Rapyd Toolkit
+function renderToolkit(checkoutId) {
+  const checkout = new RapydCheckoutToolkit({
+    id: checkoutId,
+    pay_button_text: "Pay Now",
+    pay_button_color: "#373737",
+    close_on_complete: false,
+    page_type: "collection",
+    digital_wallets_buttons_only: false,
+    digital_wallets_include_methods: ["google_pay", "apple_pay"],
+  });
 
-        <button type="submit">Submit Payment</button>
-      </form>
+  checkout.displayCheckout();
 
-      <!-- Toolkit container -->
-      <div id="toolkit-container" class="hidden"></div>
+  window.addEventListener("onCheckoutPaymentSuccess", () => {
+    alert('✅ Payment succeeded!');
+  });
 
-      <!-- Hosted page redirect info -->
-      <div id="redirect-msg" class="hidden">
-        <p>Redirecting you to the hosted checkout page...</p>
-      </div>
-    </div>
-  </div>
+  window.addEventListener("onCheckoutPaymentFailure", () => {
+    alert('❌ Payment failed.');
+  });
+}
 
-  <!-- JavaScript -->
-  <script src="checkout.js" defer></script>
-</body>
-</html>
+// Render AP/GP Wallets Only Rapyd Toolkit
+function renderToolkitWallets(checkoutId) {
+  const checkout = new RapydCheckoutToolkit({
+    id: checkoutId,
+    pay_button_text: "Click to pay",
+    pay_button_color: "blue",
+    close_on_complete: true,
+    page_type: "collection",
+    digital_wallets_buttons_only: true,
+    digital_wallets_include_methods: ["google_pay", "apple_pay"],
+    digital_wallets_buttons_customization: {
+      google_pay: {
+        button_color: "black",
+        button_type: "pay"
+      },
+      apple_pay: {
+        button_color: "black",
+        button_type: "pay"
+      }
+    }
+  });
+
+  checkout.displayCheckout();
+
+  window.addEventListener("onCheckoutPaymentSuccess", () => {
+    alert('✅ Payment succeeded!');
+  });
+
+  window.addEventListener("onCheckoutPaymentFailure", () => {
+    alert('❌ Payment failed.');
+  });
+}
