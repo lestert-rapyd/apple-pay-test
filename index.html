@@ -35,62 +35,65 @@
   <h1>🛍️ Rapyd Demo Shop</h1>
   <p>Select a product and choose your payment method:</p>
 
-  <!-- LEFT PANEL: Products and payment buttons -->
-  <div class="left-panel">
-    <div class="product-list">
-      <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"0.01","description":"Cool T-Shirt"}'>
-        <h3>Cool T-Shirt</h3>
-        <p>USD 0.01</p>
+  <!-- WRAPPER FOR PANELS -->
+  <div class="shop-layout">
+    <!-- LEFT PANEL: Products and payment buttons -->
+    <div class="left-panel">
+      <div class="product-list">
+        <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"0.01","description":"Cool T-Shirt"}'>
+          <h3>Cool T-Shirt</h3>
+          <p>USD 0.01</p>
+        </div>
+        <div class="product" data-product='{"name":"Stylish Hoodie","amount":"0.02","description":"Stylish Dress"}'>
+          <h3>Stylish Dress</h3>
+          <p>USD 0.02</p>
+        </div>
       </div>
-      <div class="product" data-product='{"name":"Stylish Hoodie","amount":"0.02","description":"Stylish Dress"}'>
-        <h3>Stylish Dress</h3>
-        <p>USD 0.02</p>
+
+      <div class="payment-buttons">
+        <button id="pay-direct-card">💳 Pay with Card (Direct API)</button>
+        <button id="pay-hosted-page">🌐 Checkout Page (Redirect)</button>
+        <button id="pay-toolkit">🧰 Checkout Toolkit (Embedded)</button>
+        <button id="pay-toolkit-wallets">🧾 Apple Pay or Google Pay</button>
       </div>
     </div>
 
-    <div class="payment-buttons">
-      <button id="pay-direct-card">💳 Pay with Card (Direct API)</button>
-      <button id="pay-hosted-page">🌐 Checkout Page (Redirect)</button>
-      <button id="pay-toolkit">🧰 Checkout Toolkit (Embedded)</button>
-      <button id="pay-toolkit-wallets">🧾 Apple Pay or Google Pay</button>
-    </div>
-  </div>
+    <!-- RIGHT PANEL: Dynamic UI -->
+    <div class="right-panel">
+      <!-- Default message shown initially -->
+      <div id="default-msg" class="default-message">
+        <em>Please select a payment method to continue.</em>
+      </div>
 
-  <!-- RIGHT PANEL: Dynamic UI -->
-  <div class="right-panel">
-    <!-- Default message shown initially -->
-    <div id="default-msg" class="default-message">
-      <em>Please select a payment method to continue.</em>
-    </div>
+      <!-- Direct card payment form -->
+      <form id="card-form" class="hidden">
+        <h3>Enter Card Details</h3>
 
-    <!-- Direct card payment form -->
-    <form id="card-form" class="hidden">
-      <h3>Enter Card Details</h3>
+        <label for="name">Name on Card</label>
+        <input type="text" id="name" required />
 
-      <label for="name">Name on Card</label>
-      <input type="text" id="name" required />
+        <label for="number">Card Number</label>
+        <input type="text" id="number" required />
 
-      <label for="number">Card Number</label>
-      <input type="text" id="number" required />
+        <label for="exp_month">Expiration Month (MM)</label>
+        <input type="text" id="exp_month" required />
 
-      <label for="exp_month">Expiration Month (MM)</label>
-      <input type="text" id="exp_month" required />
+        <label for="exp_year">Expiration Year (YY)</label>
+        <input type="text" id="exp_year" required />
 
-      <label for="exp_year">Expiration Year (YY)</label>
-      <input type="text" id="exp_year" required />
+        <label for="cvv">CVV</label>
+        <input type="text" id="cvv" required />
 
-      <label for="cvv">CVV</label>
-      <input type="text" id="cvv" required />
+        <button type="submit">Submit Payment</button>
+      </form>
 
-      <button type="submit">Submit Payment</button>
-    </form>
-
-    <!-- Toolkit checkout container -->
-    <div id="toolkit-container" class="hidden"></div>
-    
-    <!-- Hosted page redirect info -->
-    <div id="redirect-msg" class="hidden">
-      <p>Redirecting you to the hosted checkout page...</p>
+      <!-- Toolkit checkout container -->
+      <div id="toolkit-container" class="hidden"></div>
+      
+      <!-- Hosted page redirect info -->
+      <div id="redirect-msg" class="hidden">
+        <p>Redirecting you to the hosted checkout page...</p>
+      </div>
     </div>
   </div>
 
