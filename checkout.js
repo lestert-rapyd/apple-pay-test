@@ -146,7 +146,51 @@ document.getElementById('pay-toolkit').onclick = async () => {
   }
 };
 
-// Render Rapyd Toolkit
+// AP GP only
+document.getElementById('pay-toolkit-wallets').onclick = async () => {
+  hideAllPanels();
+  toolkitContainer.classList.remove("hidden");
+  toolkitContainer.innerHTML = '';
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: selectedProduct.amount,
+        currency: 'USD',
+        country: 'DE',
+        description: selectedProduct.description,
+        complete_checkout_url: 'https://rapydtoolkit.com/success',
+        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+    const data = await res.json();
+    if (!data.data || !data.data.id) {
+      alert('No checkout_id received');
+      return;
+    }
+
+    toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
+
+    if (!window.RapydCheckoutToolkit) {
+      const script = document.createElement('script');
+      script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
+      script.onload = () => renderToolkitWallets(data.data.id);
+      document.body.appendChild(script);
+    } else {
+      renderToolkitWallets(data.data.id);
+    }
+  } catch (err) {
+    alert('Toolkit Wallets error: ' + err.message);
+  }
+};
+
+
+// Render Full Rapyd Toolkit
 function renderToolkit(checkoutId) {
   const checkout = new RapydCheckoutToolkit({
     id: checkoutId,
@@ -165,6 +209,39 @@ function renderToolkit(checkoutId) {
   });
 
   window.addEventListener("onCheckoutPaymentFailure", (event) => {
+    alert('❌ Payment failed.');
+  });
+}
+
+// Render AP/GP Toolkit
+function renderToolkitWallets(checkoutId) {
+  const checkout = new RapydCheckoutToolkit({
+    id: checkoutId,
+    pay_button_text: "Click to pay",
+    pay_button_color: "blue",
+    close_on_complete: true,
+    page_type: "collection",
+    digital_wallets_buttons_only: true,
+    digital_wallets_include_methods: ["google_pay", "apple_pay"],
+    digital_wallets_buttons_customization: {
+      google_pay: {
+        button_color: "black",
+        button_type: "book"
+      },
+      apple_pay: {
+        button_color: "black",
+        button_type: "book"
+      }
+    }
+  });
+
+  checkout.displayCheckout();
+
+  window.addEventListener("onCheckoutPaymentSuccess", () => {
+    alert('✅ Payment succeeded!');
+  });
+
+  window.addEventListener("onCheckoutPaymentFailure", () => {
     alert('❌ Payment failed.');
   });
 }
