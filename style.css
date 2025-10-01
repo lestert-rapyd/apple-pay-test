@@ -138,8 +138,8 @@ button:hover {
 /* Toolkit container styling */
 #toolkit-container {
   width: 100%;
-  min-width: 500px;
-  max-width: 100%;
+  /* min-width: 500px;
+  max-width: 100%; */
   overflow: hidden;
   box-sizing: border-box;
 }
