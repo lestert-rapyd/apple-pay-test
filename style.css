@@ -37,7 +37,6 @@ p {
 
 /* Panels */
 .left-panel {
-
   min-width: 400px;
   background-color: #fff;
   padding: 20px;
@@ -46,7 +45,7 @@ p {
 }
 
 .right-panel {
-
+  display: flex;
   flex-direction: column;
   align-items: center; /* Center content horizontally */
   justify-content: flex-start;
@@ -88,13 +87,6 @@ p {
   color: #666;
 }
 
-.info-msg {
-  color: #777;
-  font-style: italic;
-  text-align: center;
-  padding-top: 40px;
-}
-
 /* Buttons */
 button {
   display: block;
@@ -119,6 +111,8 @@ button:hover {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  width: 100%;
+  max-width: 400px;
 }
 
 #card-form label {
@@ -160,4 +154,11 @@ button:hover {
 /* Utility Classes */
 .hidden {
   display: none !important;
+}
+
+.default-message {
+  color: #777;
+  font-style: italic;
+  text-align: center;
+  padding-top: 40px;
 }
