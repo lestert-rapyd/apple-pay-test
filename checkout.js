@@ -6,6 +6,24 @@ let selectedProduct = {
   description: "Cool T-Shirt"
 };
 
+// DOM references
+const cardForm = document.getElementById("card-form");
+const toolkitContainer = document.getElementById("toolkit-container");
+const redirectMsg = document.getElementById("redirect-msg");
+const defaultMsg = document.getElementById("default-msg");
+
+// Utility to hide all panels
+function hideAllPanels() {
+  cardForm.classList.add("hidden");
+  toolkitContainer.classList.add("hidden");
+  redirectMsg.classList.add("hidden");
+  defaultMsg.classList.add("hidden");
+}
+
+// Init: Hide everything except default message
+hideAllPanels();
+defaultMsg.classList.remove("hidden");
+
 // Handle product selection
 const productDivs = document.querySelectorAll('.product');
 productDivs.forEach(div => {
@@ -16,14 +34,14 @@ productDivs.forEach(div => {
   });
 });
 
-// Show card form
+// Pay with Card (Direct API)
 document.getElementById('pay-direct-card').onclick = () => {
-  document.getElementById('card-form').style.display = 'block';
-  document.getElementById('toolkit-container').innerHTML = '';
+  hideAllPanels();
+  cardForm.classList.remove('hidden');
 };
 
-// Handle Direct API card form submit
-document.getElementById('card-form').onsubmit = async (e) => {
+// Submit Direct Payment
+cardForm.onsubmit = async (e) => {
   e.preventDefault();
   const name = document.getElementById('name').value;
   const number = document.getElementById('number').value;
@@ -53,10 +71,10 @@ document.getElementById('card-form').onsubmit = async (e) => {
   }
 };
 
-// Hosted Page - redirect to Rapyd-hosted checkout
+// Hosted Checkout
 document.getElementById('pay-hosted-page').onclick = async () => {
-  document.getElementById('card-form').style.display = 'none';
-  document.getElementById('toolkit-container').innerHTML = '';
+  hideAllPanels();
+  redirectMsg.classList.remove("hidden");
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
@@ -85,11 +103,11 @@ document.getElementById('pay-hosted-page').onclick = async () => {
   }
 };
 
-// Checkout Toolkit (iframe)
+// Toolkit (Embedded)
 document.getElementById('pay-toolkit').onclick = async () => {
-  document.getElementById('card-form').style.display = 'none';
-  const container = document.getElementById('toolkit-container');
-  container.innerHTML = '';
+  hideAllPanels();
+  toolkitContainer.classList.remove("hidden");
+  toolkitContainer.innerHTML = '';
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
@@ -113,10 +131,8 @@ document.getElementById('pay-toolkit').onclick = async () => {
       return;
     }
 
-    // Add the container div required by Rapyd Checkout Toolkit
-    container.innerHTML = `<div id="rapyd-checkout"></div>`;
+    toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
 
-    // Load Rapyd Toolkit script if not already loaded
     if (!window.RapydCheckoutToolkit) {
       const script = document.createElement('script');
       script.src = 'https://sandboxcheckouttoolkit.rapyd.net';
@@ -130,7 +146,7 @@ document.getElementById('pay-toolkit').onclick = async () => {
   }
 };
 
-// Render Rapyd Checkout Toolkit
+// Render Rapyd Toolkit
 function renderToolkit(checkoutId) {
   const checkout = new RapydCheckoutToolkit({
     id: checkoutId,
@@ -145,12 +161,10 @@ function renderToolkit(checkoutId) {
   checkout.displayCheckout();
 
   window.addEventListener("onCheckoutPaymentSuccess", (event) => {
-    console.log("Payment succeeded:", event.detail);
     alert('✅ Payment succeeded!');
   });
 
   window.addEventListener("onCheckoutPaymentFailure", (event) => {
-    console.error("Payment failed:", event.detail.error);
     alert('❌ Payment failed.');
   });
 }
