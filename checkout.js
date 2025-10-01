@@ -226,11 +226,11 @@ function renderToolkitWallets(checkoutId) {
     digital_wallets_buttons_customization: {
       google_pay: {
         button_color: "black",
-        button_type: "book"
+        button_type: "pay"
       },
       apple_pay: {
         button_color: "black",
-        button_type: "book"
+        button_type: "pay"
       }
     }
   });
