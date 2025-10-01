@@ -38,7 +38,7 @@ p {
 /* Panels */
 .left-panel {
 
-  min-width: 320px;
+  min-width: 400px;
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -52,7 +52,7 @@ p {
   justify-content: flex-start;
   padding: 20px;
   box-sizing: border-box;
-  min-width: 320px;
+  min-width: 400px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
