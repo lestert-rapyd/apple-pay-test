@@ -37,7 +37,7 @@ p {
 
 /* Panels */
 .left-panel {
-  flex: 1;
+
   min-width: 320px;
   background-color: #fff;
   padding: 20px;
@@ -46,7 +46,7 @@ p {
 }
 
 .right-panel {
-  display: flex;
+
   flex-direction: column;
   align-items: center; /* Center content horizontally */
   justify-content: flex-start;
