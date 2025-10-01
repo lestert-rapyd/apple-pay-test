@@ -2,7 +2,7 @@ const BACKEND_URL = 'https://rapyd-backend.vercel.app';
 
 let selectedProduct = {
   name: "Cool T-Shirt",
-  amount: "19.99",
+  amount: "0.01",
   description: "Cool T-Shirt"
 };
 
