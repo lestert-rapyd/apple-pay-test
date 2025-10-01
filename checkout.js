@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Your backend endpoint
+const BACKEND_URL = 'https://rapyd-backend.vercel.app'; // Your Vercel backend
 
 let selectedProduct = {
   name: "Cool T-Shirt",
@@ -14,10 +14,10 @@ const toolkitContainer = document.getElementById("toolkit-container");
 const redirectMsg = document.getElementById("redirect-msg");
 const defaultMsg = document.getElementById("default-msg");
 
-// Environment toggle radios
+// Radio toggles for environment
 const envRadios = document.querySelectorAll('input[name="env-toggle"]');
 
-// Utility to hide all panels
+// Utility: hide all panels
 function hideAllPanels() {
   cardForm.classList.add("hidden");
   toolkitContainer.classList.add("hidden");
@@ -25,21 +25,21 @@ function hideAllPanels() {
   defaultMsg.classList.add("hidden");
 }
 
-// Init: Hide everything except default message
+// Initialize: hide all, show default message
 hideAllPanels();
 defaultMsg.classList.remove("hidden");
 
-// Listen for environment changes properly
+// Listen to environment radio changes
 envRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     if (e.target.checked) {
       currentEnv = e.target.value;
-      console.log(`Environment switched to: ${currentEnv}`);
+      console.log("Environment switched to:", currentEnv);
     }
   });
 });
 
-// Handle product selection
+// Product selection logic
 const productDivs = document.querySelectorAll('.product');
 productDivs.forEach(div => {
   div.addEventListener('click', () => {
@@ -52,10 +52,10 @@ productDivs.forEach(div => {
 // Pay with Card (Direct API)
 document.getElementById('pay-direct-card').onclick = () => {
   hideAllPanels();
-  cardForm.classList.remove('hidden');
+  cardForm.classList.remove("hidden");
 };
 
-// Submit Direct Payment
+// Submit Direct Payment via backend
 cardForm.onsubmit = async (e) => {
   e.preventDefault();
   const cardData = {
@@ -75,13 +75,12 @@ cardForm.onsubmit = async (e) => {
         currency: 'USD',
         capture: true,
         description: selectedProduct.description,
-        env: currentEnv,  // Pass environment param
+        env: currentEnv,  // Pass environment to backend
         card: cardData
       }),
     });
 
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
     const data = await res.json();
     alert(`Payment Status: ${data.status || JSON.stringify(data)}`);
   } catch (err) {
@@ -89,49 +88,48 @@ cardForm.onsubmit = async (e) => {
   }
 };
 
-// Helper: Create checkout session for hosted page and toolkit
+// Helper: create checkout session for hosted / toolkit
 async function createCheckoutSession() {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: selectedProduct.amount,
-        currency: 'USD',
-        country: 'DE',
-        description: selectedProduct.description,
-        complete_checkout_url: 'https://rapydtoolkit.com/success',
-        cancel_checkout_url: 'https://rapydtoolkit.com/failed',
-        env: currentEnv, // Pass environment param
-      }),
-    });
+  const payload = {
+    amount: selectedProduct.amount,
+    currency: 'USD',
+    country: 'DE',
+    description: selectedProduct.description,
+    complete_checkout_url: 'https://rapydtoolkit.com/success',
+    cancel_checkout_url: 'https://rapydtoolkit.com/failed',
+    env: currentEnv,  // tell backend which environment
+  };
 
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  const res = await fetch(`${BACKEND_URL}/api/create-checkout-session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-    return await res.json();
-  } catch (err) {
-    alert('Error creating checkout session: ' + err.message);
-    throw err;
+  if (!res.ok) {
+    throw new Error(`Server error: ${res.status}`);
   }
+  return await res.json();
 }
 
-// Hosted Checkout button
+// Hosted page redirect
 document.getElementById('pay-hosted-page').onclick = async () => {
   hideAllPanels();
   redirectMsg.classList.remove("hidden");
 
   try {
     const data = await createCheckoutSession();
-
     if (data.data && data.data.redirect_url) {
       window.location.href = data.data.redirect_url;
     } else {
       alert('No redirect URL received');
     }
-  } catch {}
+  } catch (err) {
+    alert('Error creating checkout session: ' + err.message);
+  }
 };
 
-// Toolkit (Full)
+// Full Toolkit (embedded)
 document.getElementById('pay-toolkit').onclick = async () => {
   hideAllPanels();
   toolkitContainer.classList.remove("hidden");
@@ -139,7 +137,6 @@ document.getElementById('pay-toolkit').onclick = async () => {
 
   try {
     const data = await createCheckoutSession();
-
     if (!data.data || !data.data.id) {
       alert('No checkout_id received');
       return;
@@ -147,22 +144,18 @@ document.getElementById('pay-toolkit').onclick = async () => {
 
     toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
 
-    if (!window.RapydCheckoutToolkit) {
-      const script = document.createElement('script');
-      script.src = currentEnv === 'live'
-        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
-        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
-      script.onload = () => renderToolkit(data.data.id);
-      document.body.appendChild(script);
-    } else {
-      renderToolkit(data.data.id);
-    }
+    const script = document.createElement('script');
+    script.src = currentEnv === 'live'
+      ? 'https://checkouttoolkit.rapyd.net'
+      : 'https://sandboxcheckouttoolkit.rapyd.net';
+    script.onload = () => renderToolkit(data.data.id);
+    document.body.appendChild(script);
   } catch (err) {
     alert('Toolkit error: ' + err.message);
   }
 };
 
-// Toolkit (AP/GP Wallets Only)
+// Toolkit with Apple Pay / Google Pay only
 document.getElementById('pay-toolkit-wallets').onclick = async () => {
   hideAllPanels();
   toolkitContainer.classList.remove("hidden");
@@ -170,7 +163,6 @@ document.getElementById('pay-toolkit-wallets').onclick = async () => {
 
   try {
     const data = await createCheckoutSession();
-
     if (!data.data || !data.data.id) {
       alert('No checkout_id received');
       return;
@@ -178,22 +170,18 @@ document.getElementById('pay-toolkit-wallets').onclick = async () => {
 
     toolkitContainer.innerHTML = `<div id="rapyd-checkout"></div>`;
 
-    if (!window.RapydCheckoutToolkit) {
-      const script = document.createElement('script');
-      script.src = currentEnv === 'live'
-        ? 'https://checkouttoolkit.rapyd.net'      // Live script URL
-        : 'https://sandboxcheckouttoolkit.rapyd.net'; // Sandbox script URL
-      script.onload = () => renderToolkitWallets(data.data.id);
-      document.body.appendChild(script);
-    } else {
-      renderToolkitWallets(data.data.id);
-    }
+    const script = document.createElement('script');
+    script.src = currentEnv === 'live'
+      ? 'https://checkouttoolkit.rapyd.net'
+      : 'https://sandboxcheckouttoolkit.rapyd.net';
+    script.onload = () => renderToolkitWallets(data.data.id);
+    document.body.appendChild(script);
   } catch (err) {
     alert('Toolkit Wallets error: ' + err.message);
   }
 };
 
-// Render Full Rapyd Toolkit
+// Render full toolkit
 function renderToolkit(checkoutId) {
   const checkout = new RapydCheckoutToolkit({
     id: checkoutId,
@@ -210,13 +198,12 @@ function renderToolkit(checkoutId) {
   window.addEventListener("onCheckoutPaymentSuccess", () => {
     alert('✅ Payment succeeded!');
   });
-
   window.addEventListener("onCheckoutPaymentFailure", () => {
     alert('❌ Payment failed.');
   });
 }
 
-// Render AP/GP Wallets Only Rapyd Toolkit
+// Render toolkit for wallets only
 function renderToolkitWallets(checkoutId) {
   const checkout = new RapydCheckoutToolkit({
     id: checkoutId,
@@ -243,7 +230,6 @@ function renderToolkitWallets(checkoutId) {
   window.addEventListener("onCheckoutPaymentSuccess", () => {
     alert('✅ Payment succeeded!');
   });
-
   window.addEventListener("onCheckoutPaymentFailure", () => {
     alert('❌ Payment failed.');
   });
