@@ -93,20 +93,34 @@ button:hover {
   background-color: #005dc1;
 }
 
-/* Card Form */
+/* Card Form Styling */
 #card-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
+}
+
+#card-form label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #444;
 }
 
 #card-form input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 1em;
+}
+
+#card-form input:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
 }
 
 #card-form button {
+  margin-top: 10px;
   background-color: #28a745;
 }
 
