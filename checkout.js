@@ -13,7 +13,9 @@ const cardForm = document.getElementById("card-form");
 const toolkitContainer = document.getElementById("toolkit-container");
 const redirectMsg = document.getElementById("redirect-msg");
 const defaultMsg = document.getElementById("default-msg");
-const envToggle = document.getElementById('env-toggle');  // Environment toggle dropdown
+
+// Environment toggle radios
+const envToggleRadios = document.querySelectorAll('input[name="env-toggle"]');
 
 // Utility to hide all panels
 function hideAllPanels() {
@@ -27,10 +29,14 @@ function hideAllPanels() {
 hideAllPanels();
 defaultMsg.classList.remove("hidden");
 
-// Listen for environment changes
-envToggle.addEventListener('change', (e) => {
-  currentEnv = e.target.value;
-  console.log(`Environment switched to: ${currentEnv}`);
+// Listen for environment changes on all radio inputs
+envToggleRadios.forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      currentEnv = e.target.value;
+      console.log(`Environment switched to: ${currentEnv}`);
+    }
+  });
 });
 
 // Handle product selection
