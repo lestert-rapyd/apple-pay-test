@@ -15,7 +15,7 @@ const redirectMsg = document.getElementById("redirect-msg");
 const defaultMsg = document.getElementById("default-msg");
 
 // Environment toggle radios
-const envToggleRadios = document.querySelectorAll('input[name="env-toggle"]');
+const envRadios = document.querySelectorAll('input[name="env-toggle"]');
 
 // Utility to hide all panels
 function hideAllPanels() {
@@ -29,8 +29,8 @@ function hideAllPanels() {
 hideAllPanels();
 defaultMsg.classList.remove("hidden");
 
-// Listen for environment changes on all radio inputs
-envToggleRadios.forEach(radio => {
+// Listen for environment changes properly
+envRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     if (e.target.checked) {
       currentEnv = e.target.value;
@@ -229,11 +229,11 @@ function renderToolkitWallets(checkoutId) {
     digital_wallets_buttons_customization: {
       google_pay: {
         button_color: "black",
-        button_type: "buy"
+        button_type: "pay"
       },
       apple_pay: {
         button_color: "black",
-        button_type: "buy"
+        button_type: "pay"
       }
     }
   });
