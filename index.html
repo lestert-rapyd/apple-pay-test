@@ -6,7 +6,6 @@
   <title>Rapyd Demo Shop</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Simple styling for env toggle */
     #env-toggle-container {
       margin-bottom: 20px;
       font-family: Arial, sans-serif;
@@ -19,7 +18,8 @@
   </style>
 </head>
 <body>
-  <!-- Environment toggle: only one selectable -->
+
+  <!-- Environment Toggle -->
   <div id="env-toggle-container">
     <strong>Environment:</strong>
     <label>
@@ -35,9 +35,10 @@
   <h1>🛍️ Rapyd Demo Shop</h1>
   <p>Select a product and choose your payment method:</p>
 
-  <!-- WRAPPER FOR PANELS -->
+  <!-- Shop Layout -->
   <div class="shop-layout">
-    <!-- LEFT PANEL: Products and payment buttons -->
+    
+    <!-- LEFT PANEL -->
     <div class="left-panel">
       <div class="product-list">
         <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"0.01","description":"Cool T-Shirt"}'>
@@ -58,9 +59,9 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: Dynamic UI -->
+    <!-- RIGHT PANEL -->
     <div class="right-panel">
-      <!-- Default message shown initially -->
+      <!-- Default message -->
       <div id="default-msg" class="default-message">
         <em>Please select a payment method to continue.</em>
       </div>
@@ -87,9 +88,9 @@
         <button type="submit">Submit Payment</button>
       </form>
 
-      <!-- Toolkit checkout container -->
+      <!-- Toolkit container -->
       <div id="toolkit-container" class="hidden"></div>
-      
+
       <!-- Hosted page redirect info -->
       <div id="redirect-msg" class="hidden">
         <p>Redirecting you to the hosted checkout page...</p>
@@ -97,7 +98,7 @@
     </div>
   </div>
 
-  <!-- Load external JS -->
+  <!-- JavaScript -->
   <script src="checkout.js" defer></script>
 </body>
 </html>
