@@ -28,12 +28,20 @@
       <!-- Direct card payment form -->
       <form id="card-form" class="hidden">
         <h3>Enter Card Details</h3>
-        <input type="text" id="name" placeholder="Name on Card" required />
-        <input type="text" id="number" placeholder="Card Number" required />
-        <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
-        <input type="text" id="exp_year" placeholder="Expiration Year (YY)" required />
-        <input type="text" id="cvv" placeholder="CVV" required />
+        <label for="name">Name on Card</label>
+        <input type="text" id="name" required />
+        <label for="number">Card Number</label>
+        <input type="text" id="number" required />
+        <label for="exp_month">Expiration Month (MM)</label>
+        <input type="text" id="exp_month" required />
+        <label for="exp_year">Expiration Year (YY)</label>
+        <input type="text" id="exp_year" required />
+        <label for="cvv">CVV</label>
+        <input type="text" id="cvv" required />
+        
         <button type="submit">Submit Payment</button>
+</form>
+
       </form>
 
       <!-- Toolkit checkout container -->
