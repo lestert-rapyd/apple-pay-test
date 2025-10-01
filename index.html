@@ -1,1 +1,51 @@
+<body>
+  <h1>🛍️ Rapyd Demo Shop</h1>
+  <p>Select a product and choose your payment method:</p>
 
+  <div class="shop-layout">
+    <!-- LEFT PANEL: Products -->
+    <div class="left-panel">
+      <div class="product-list">
+        <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"19.99","description":"Cool T-Shirt"}'>
+          <h3>Cool T-Shirt</h3>
+          <p>USD 19.99</p>
+        </div>
+        <div class="product" data-product='{"name":"Stylish Hoodie","amount":"39.99","description":"Stylish Hoodie"}'>
+          <h3>Stylish Hoodie</h3>
+          <p>USD 39.99</p>
+        </div>
+      </div>
+
+      <div>
+        <button id="pay-direct-card">💳 Pay with Card (Direct API)</button>
+        <button id="pay-hosted-page">🌐 Checkout Page (Redirect)</button>
+        <button id="pay-toolkit">🧰 Checkout Toolkit (Embedded)</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Dynamic UI -->
+    <div class="right-panel">
+      <!-- Direct card payment form -->
+      <form id="card-form" class="hidden">
+        <h3>Enter Card Details</h3>
+        <input type="text" id="name" placeholder="Name on Card" required />
+        <input type="text" id="number" placeholder="Card Number" required />
+        <input type="text" id="exp_month" placeholder="Expiration Month (MM)" required />
+        <input type="text" id="exp_year" placeholder="Expiration Year (YY)" required />
+        <input type="text" id="cvv" placeholder="CVV" required />
+        <button type="submit">Submit Payment</button>
+      </form>
+
+      <!-- Toolkit checkout container -->
+      <div id="toolkit-container" class="hidden"></div>
+
+      <!-- Hosted page redirect info -->
+      <div id="redirect-msg" class="hidden">
+        <p>Redirecting you to the hosted checkout page...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load external JS -->
+  <script src="checkout.js" defer></script>
+</body>
