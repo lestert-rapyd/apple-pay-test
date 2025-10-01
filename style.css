@@ -135,12 +135,13 @@ button:hover {
   background-color: #218838;
 }
 
-/* Toolkit and Redirect */
-#toolkit-container, #redirect-msg {
-  padding: 20px;
-  background-color: #e9f7ff;
-  border: 1px solid #b3e5fc;
-  border-radius: 8px;
+/* Toolkit container styling */
+#toolkit-container {
+  width: 100%;
+  min-width: 500px;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Utility Classes */
