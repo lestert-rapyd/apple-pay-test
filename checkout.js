@@ -76,7 +76,10 @@ cardForm.onsubmit = async (e) => {
         capture: true,
         description: selectedProduct.description,
         env: currentEnv,  // Pass environment to backend
-        card: cardData
+        payment_method: { 
+          type: "de_visa_card",
+          fields: cardData
+        }
       }),
     });
 
