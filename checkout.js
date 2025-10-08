@@ -230,10 +230,28 @@ function renderToolkitWallets(checkoutId) {
 
   checkout.displayCheckout();
 
-  window.addEventListener("onCheckoutPaymentSuccess", () => {
+  window.addEventListener("onCheckoutPaymentSuccess", (event) => {
+    console.log(event.detail)
     alert('✅ Payment succeeded!');
   });
-  window.addEventListener("onCheckoutPaymentFailure", () => {
+  
+  window.addEventListener("onCheckoutPaymentFailure", (event) => {
+    console.log(event.detail.error)
     alert('❌ Payment failed.');
   });
+
+  window.addEventListener("onCheckoutPaymentPending", (event) => {
+    console.log(event.detail)
+  });
+  
+  window.addEventListener("onCheckoutPaymentExpired", (event) => {
+    console.log(event.detail)
+  });
+  
+  window.addEventListener("onLoading", (event) => {
+    console.log(event.detail.loading)
+  });
+
+  
+  
 }
