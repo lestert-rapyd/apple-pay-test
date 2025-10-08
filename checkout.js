@@ -212,6 +212,8 @@ function renderToolkitWallets(checkoutId) {
     id: checkoutId,
     pay_button_text: "Click to pay",
     pay_button_color: "blue",
+    wait_on_payment_confirmation: true,
+    wait_on_payment_redirect: true,
     close_on_complete: true,
     page_type: "collection",
     digital_wallets_buttons_only: true,
