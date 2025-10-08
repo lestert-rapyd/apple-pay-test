@@ -190,6 +190,8 @@ function renderToolkit(checkoutId) {
     id: checkoutId,
     pay_button_text: "Pay Now",
     pay_button_color: "#373737",
+    wait_on_payment_confirmation: true,
+    wait_on_payment_redirect: true,
     close_on_complete: false,
     page_type: "collection",
     digital_wallets_buttons_only: false,
