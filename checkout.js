@@ -7,7 +7,7 @@ let selectedProduct = {
 };
 
 let currentEnv = 'sandbox';
-let currentCheckoutId = null; // cache checkout_id
+let currentCheckoutSession = null; // cache full checkout session response
 
 // DOM references
 const cardForm = document.getElementById("card-form");
@@ -33,7 +33,7 @@ envRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     if (e.target.checked) {
       currentEnv = e.target.value;
-      currentCheckoutId = null; // invalidate
+      currentCheckoutSession = null; // invalidate
       console.log("Environment switched to:", currentEnv);
     }
   });
@@ -46,7 +46,7 @@ productDivs.forEach(div => {
     productDivs.forEach(d => d.classList.remove('selected'));
     div.classList.add('selected');
     selectedProduct = JSON.parse(div.getAttribute('data-product'));
-    currentCheckoutId = null; // invalidate
+    currentCheckoutSession = null; // invalidate
   });
 });
 
@@ -91,10 +91,10 @@ cardForm.onsubmit = async (e) => {
   }
 };
 
-// Reuse checkout session if available
+// Reuse full checkout session if available
 async function createCheckoutSession() {
-  if (currentCheckoutId) {
-    return { data: { id: currentCheckoutId } };
+  if (currentCheckoutSession) {
+    return currentCheckoutSession;
   }
 
   const payload = {
@@ -118,7 +118,7 @@ async function createCheckoutSession() {
   }
 
   const data = await res.json();
-  currentCheckoutId = data.data.id;
+  currentCheckoutSession = data; // cache full response
   return data;
 }
 
