@@ -72,7 +72,7 @@ cardForm.onsubmit = async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amount: selectedProduct.amount,
-        currency: 'USD',
+        currency: 'SGD',
         capture: true,
         description: selectedProduct.description,
         env: currentEnv,
