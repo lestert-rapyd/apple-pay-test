@@ -105,7 +105,7 @@ async function createCheckoutSession() {
     merchant_reference_id: 'Rapyd_Txn_000XXX',
     statement_descriptor: 'Rapyd Test',
     complete_checkout_url: 'http://example.com/success',
-    cancel_checkout_url: 'http://example.com/cancel',
+    cancel_checkout_url: 'https://www.rapydtoolkit.com',
     complete_payment_url: 'http://example.com/complete',
     error_payment_url: 'http://example.com/error',
     custom_elements: {
