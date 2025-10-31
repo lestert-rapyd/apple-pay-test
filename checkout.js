@@ -99,11 +99,24 @@ async function createCheckoutSession() {
 
   const payload = {
     amount: selectedProduct.amount,
-    currency: 'USD',
-    country: 'DE',
+    currency: 'SGD',
+    country: 'SG',
     description: selectedProduct.description,
-    complete_checkout_url: 'https://rapydtoolkit.com/success',
-    cancel_checkout_url: 'https://rapydtoolkit.com/failed',
+    merchant_reference_id: 'Rapyd_Txn_000XXX',
+    statement_descriptor: 'Rapyd Test',
+    complete_checkout_url: 'http://example.com/success',
+    cancel_checkout_url: 'http://example.com/cancel',
+    complete_payment_url: 'http://example.com/complete',
+    error_payment_url: 'http://example.com/error',
+    custom_elements: {
+      display_description: true
+    },
+    payment_method_type_categories: [
+      'card',
+      'bank_transfer',
+      'bank_redirect',
+      'cash'
+    ],
     env: currentEnv,
   };
 
