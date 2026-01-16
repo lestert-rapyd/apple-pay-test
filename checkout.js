@@ -99,8 +99,8 @@ async function createCheckoutSession() {
 
   const payload = {
     amount: selectedProduct.amount,
-    currency: 'SGD',
-    country: 'SG',
+    currency: 'GBP',
+    country: 'GB',
     description: selectedProduct.description,
     merchant_reference_id: 'Rapyd_Txn_000XXX',
     statement_descriptor: 'Rapyd Test',
