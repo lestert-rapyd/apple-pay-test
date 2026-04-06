@@ -103,7 +103,7 @@ async function createCheckoutSession() {
     country: 'GB',
     description: selectedProduct.description,
     merchant_reference_id: 'Rapyd_Txn_000XXX',
-    statement_descriptor: 'Rapyd Test',
+    statement_descriptor: 'Rapyd Test Descriptor',
     complete_checkout_url: 'http://example.com/success',
     cancel_checkout_url: 'https://www.rapydtoolkit.com',
     complete_payment_url: 'http://example.com/complete',
