@@ -3,102 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rapyd Demo Shop</title>
+  <title>Rapyd · Payment Methods Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <style>
-    #env-toggle-container {
-      margin-bottom: 20px;
-      font-family: Arial, sans-serif;
-    }
-    #env-toggle-container label {
-      margin-right: 15px;
-      cursor: pointer;
-      user-select: none;
-    }
-  </style>
 </head>
 <body>
 
-  <!-- Environment Toggle -->
-  <div id="env-toggle-container">
-    <strong>Environment:</strong>
-    <label>
-      <input type="radio" name="env-toggle" value="sandbox" checked />
-      Sandbox
-    </label>
-    <label>
-      <input type="radio" name="env-toggle" value="live" />
-      Live
-    </label>
-  </div>
-
-  <h1>🛍️ Rapyd Demo Shop</h1>
-  <p>Select a product and choose your payment method:</p>
-
-  <!-- Shop Layout -->
-  <div class="shop-layout">
-
-    <!-- LEFT PANEL -->
-    <div class="left-panel">
-      <div class="product-list">
-        <div class="product selected" data-product='{"name":"Cool T-Shirt","amount":"0.01","description":"Cool T-Shirt"}'>
-          <h3>Cool T-Shirt</h3>
-          <p>SGD 0.01</p>
-        </div>
-        <div class="product" data-product='{"name":"Stylish Hoodie","amount":"0.02","description":"Stylish Dress"}'>
-          <h3>Stylish Dress</h3>
-          <p>SGD 0.02</p>
-        </div>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-logo">⬡</span>
+        <span class="brand-name">Rapyd</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-sub">Payments Demo</span>
       </div>
-
-      <div class="payment-buttons">
-        <button id="pay-direct-card">Pay with Card (Direct API)</button>
-        <button id="pay-hosted-page">Checkout Page (Redirect)</button>
-        <button id="pay-toolkit">Checkout Toolkit (Embedded)</button>
-        <button id="pay-toolkit-wallets">Apple Pay or Google Pay (Embedded)</button>
+      <!-- Environment Toggle -->
+      <div class="env-toggle" id="env-toggle">
+        <button class="env-btn active" data-env="sandbox">
+          <span class="env-dot sandbox"></span>
+          Sandbox
+        </button>
+        <button class="env-btn" data-env="live">
+          <span class="env-dot live"></span>
+          Live
+        </button>
       </div>
     </div>
+  </header>
 
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-      <!-- Default message -->
-      <div id="default-msg" class="default-message">
-        <em>Please select a payment method to continue.</em>
+  <!-- Env Banner -->
+  <div class="env-banner" id="env-banner">
+    <span class="env-banner-dot"></span>
+    <span id="env-banner-text">Connected to <strong>Sandbox</strong> — test transactions only, no real charges.</span>
+  </div>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Product -->
+    <section class="section">
+      <div class="section-label">PRODUCT</div>
+      <div class="product-card">
+        <div class="product-info">
+          <div class="product-name">Developer Test Kit</div>
+          <div class="product-desc">A lightweight item for integration testing across payment flows.</div>
+        </div>
+        <div class="product-price">
+          <span class="price-amount">0.01</span>
+          <span class="price-currency">GBP</span>
+        </div>
       </div>
+    </section>
 
-      <!-- Direct card payment form -->
-      <form id="card-form" class="hidden">
-        <h3>Enter Card Details</h3>
+    <!-- Payment Methods -->
+    <section class="section">
+      <div class="section-label">PAYMENT METHOD</div>
+      <div class="method-list">
 
-        <label for="name">Name on Card</label>
-        <input type="text" id="name" required />
+        <button class="method-row" id="pay-hosted-page">
+          <div class="method-meta">
+            <span class="method-tag">REDIRECT</span>
+          </div>
+          <div class="method-body">
+            <div class="method-title">Hosted Checkout Page</div>
+            <div class="method-desc">Redirects the customer to a Rapyd-hosted payment page. Supports all available payment methods for the merchant's country.</div>
+          </div>
+          <div class="method-arrow">→</div>
+        </button>
 
-        <label for="number">Card Number</label>
-        <input type="text" id="number" required />
+        <button class="method-row" id="pay-toolkit">
+          <div class="method-meta">
+            <span class="method-tag">IFRAME</span>
+          </div>
+          <div class="method-body">
+            <div class="method-title">Embedded Checkout — Full</div>
+            <div class="method-desc">Renders the full Rapyd Checkout Toolkit inline. Cards, bank transfers, and digital wallets in a single embedded experience.</div>
+          </div>
+          <div class="method-arrow">→</div>
+        </button>
 
-        <label for="exp_month">Expiration Month (MM)</label>
-        <input type="text" id="exp_month" required />
+        <button class="method-row" id="pay-toolkit-wallets">
+          <div class="method-meta">
+            <span class="method-tag">IFRAME · WALLETS</span>
+          </div>
+          <div class="method-body">
+            <div class="method-title">Embedded Checkout — Digital Wallets</div>
+            <div class="method-desc">Renders Apple Pay and Google Pay buttons only. Ideal for one-tap checkout experiences on supported devices.</div>
+          </div>
+          <div class="method-arrow">→</div>
+        </button>
 
-        <label for="exp_year">Expiration Year (YY)</label>
-        <input type="text" id="exp_year" required />
+      </div>
+    </section>
 
-        <label for="cvv">CVV</label>
-        <input type="text" id="cvv" required />
+  </main>
 
-        <button type="submit">Submit Payment</button>
-      </form>
-
-      <!-- Toolkit container -->
-      <div id="toolkit-container" class="hidden"></div>
-
-      <!-- Hosted page redirect info -->
-      <div id="redirect-msg" class="hidden">
-        <p>Redirecting you to the hosted checkout page...</p>
+  <!-- Modal Overlay -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-tag" id="modal-tag"></span>
+          <span class="modal-title" id="modal-title"></span>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamic content -->
       </div>
     </div>
   </div>
 
-  <!-- JavaScript -->
   <script src="checkout.js" defer></script>
 </body>
 </html>
