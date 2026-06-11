@@ -1,174 +1,726 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rapyd · Payment Methods Demo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="brand">
-        <span class="brand-logo">⬡</span>
-        <span class="brand-name">Rapyd</span>
-        <span class="brand-divider">/</span>
-        <span class="brand-sub">Payments Demo</span>
-      </div>
-      <!-- Environment Toggle -->
-      <div class="env-toggle" id="env-toggle">
-        <button class="env-btn active" data-env="sandbox">
-          <span class="env-dot sandbox"></span>
-          Sandbox
-        </button>
-        <button class="env-btn" data-env="live">
-          <span class="env-dot live"></span>
-          Live
-        </button>
-      </div>
-    </div>
-  </header>
+:root {
+  --bg:             #FAFAFA;
+  --surface:        #FFFFFF;
+  --surface-2:      #F4F4F5;
+  --border:         #E4E4E7;
+  --border-hover:   #C4C4C7;
+  --text-primary:   #0F0F0F;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --accent:         #0057FF;
+  --accent-light:   #EFF4FF;
+  --accent-hover:   #0046CC;
+  --live:           #DC2626;
+  --live-light:     #FEF2F2;
+  --sandbox:        #16A34A;
+  --sandbox-light:  #F0FDF4;
+  --tag-bg:         #F4F4F5;
+  --tag-text:       #3F3F46;
+  --radius-sm:      4px;
+  --radius:         8px;
+  --radius-lg:      12px;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:      0 16px 48px rgba(0,0,0,0.14);
+  --font-sans:      'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+  --transition:     0.15s ease;
+}
 
-  <!-- Env Banner -->
-  <div class="env-banner" id="env-banner">
-    <span class="env-banner-dot"></span>
-    <span id="env-banner-text">Connected to <strong>Sandbox</strong> — test transactions only, no real charges.</span>
-  </div>
+html {
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
 
-  <!-- Main -->
-  <main class="main">
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
 
-    <!-- Product -->
-    <section class="section">
-      <div class="section-label">PRODUCT</div>
-      <div class="product-card">
-        <div class="product-info">
-          <div class="product-name">Developer Test Kit</div>
-          <div class="product-desc">A lightweight item for integration testing across payment flows.</div>
-        </div>
-        <div class="product-price">
-          <span class="price-amount">0.01</span>
-          <span class="price-currency">GBP</span>
-        </div>
-      </div>
-    </section>
+/* ─────────────────────────────────────────
+   HEADER
+───────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250,250,250,0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
 
-    <!-- Options -->
-    <section class="section">
-      <div class="section-label">OPTIONS</div>
-      <div class="options-bar">
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-        <!-- Display Mode Toggle -->
-        <div class="option-group">
-          <span class="option-label">Display</span>
-          <div class="option-toggle" id="display-toggle">
-            <button class="opt-btn active" data-display="modal">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="3" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/></svg>
-              Modal
-            </button>
-            <button class="opt-btn" data-display="inline">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
-              Inline
-            </button>
-          </div>
-        </div>
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-        <div class="option-divider"></div>
+.brand-logo {
+  font-size: 18px;
+  color: var(--accent);
+  line-height: 1;
+}
 
-        <!-- 3DS Toggle -->
-        <div class="option-group">
-          <span class="option-label">3D Secure</span>
-          <div class="option-toggle" id="tds-toggle">
-            <button class="opt-btn" data-tds="false">Off</button>
-            <button class="opt-btn active" data-tds="true">On</button>
-          </div>
-          <span class="option-hint" id="tds-hint">Applied to embedded flows</span>
-        </div>
+.brand-name {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
 
-      </div>
-    </section>
+.brand-divider {
+  color: var(--border-hover);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1;
+}
 
-    <!-- Page layout: left = methods, right = inline panel -->
-    <div class="page-layout" id="page-layout">
+.brand-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
 
-      <!-- Payment Methods -->
-      <section class="section methods-section">
-        <div class="section-label">PAYMENT METHOD</div>
-        <div class="method-list">
+/* ─────────────────────────────────────────
+   ENV TOGGLE (header)
+───────────────────────────────────────── */
+.env-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
 
-          <button class="method-row" id="pay-hosted-page">
-            <div class="method-meta">
-              <span class="method-tag">REDIRECT</span>
-            </div>
-            <div class="method-body">
-              <div class="method-title">Hosted Checkout Page</div>
-              <div class="method-desc">Redirects the customer to a Rapyd-hosted payment page. Supports all available payment methods for the merchant's country.</div>
-            </div>
-            <div class="method-arrow">→</div>
-          </button>
+.env-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background var(--transition), color var(--transition);
+}
 
-          <button class="method-row" id="pay-toolkit">
-            <div class="method-meta">
-              <span class="method-tag">IFRAME</span>
-            </div>
-            <div class="method-body">
-              <div class="method-title">Embedded Checkout — Full</div>
-              <div class="method-desc">Renders the full Rapyd Checkout Toolkit inline. Cards, bank transfers, and digital wallets in a single embedded experience.</div>
-            </div>
-            <div class="method-arrow">→</div>
-          </button>
+.env-btn:hover { color: var(--text-primary); }
 
-          <button class="method-row" id="pay-toolkit-wallets">
-            <div class="method-meta">
-              <span class="method-tag">IFRAME · WALLETS</span>
-            </div>
-            <div class="method-body">
-              <div class="method-title">Embedded Checkout — Digital Wallets</div>
-              <div class="method-desc">Renders Apple Pay and Google Pay buttons only. Ideal for one-tap checkout experiences on supported devices.</div>
-            </div>
-            <div class="method-arrow">→</div>
-          </button>
+.env-btn.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
 
-        </div>
-      </section>
+.env-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
 
-      <!-- Inline Panel (hidden by default, shown when display=inline) -->
-      <div class="inline-panel hidden" id="inline-panel">
-        <div class="inline-panel-header">
-          <span class="inline-panel-tag" id="inline-panel-tag"></span>
-          <span class="inline-panel-title" id="inline-panel-title">Select a payment method</span>
-        </div>
-        <div class="inline-panel-body" id="inline-panel-body">
-          <div class="inline-empty">
-            <div class="inline-empty-icon">⬡</div>
-            <div class="inline-empty-text">Select a payment method to preview the checkout experience.</div>
-          </div>
-        </div>
-      </div>
+.env-dot.sandbox { background: var(--sandbox); }
+.env-dot.live    { background: var(--live); }
 
-    </div><!-- /page-layout -->
+/* ─────────────────────────────────────────
+   ENV BANNER
+───────────────────────────────────────── */
+.env-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 1100px;
+  margin: 20px auto 0;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--sandbox-light);
+  border: 1px solid #BBF7D0;
+  font-size: 12.5px;
+  color: #15803D;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
 
-  </main>
+.env-banner.live-mode {
+  background: var(--live-light);
+  border-color: #FECACA;
+  color: #B91C1C;
+}
 
-  <!-- Modal Overlay -->
-  <div class="modal-overlay hidden" id="modal-overlay">
-    <div class="modal" id="modal">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-tag" id="modal-tag"></span>
-          <span class="modal-title" id="modal-title"></span>
-        </div>
-        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
-      </div>
-      <div class="modal-body" id="modal-body"></div>
-    </div>
-  </div>
+.env-banner-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
 
-  <script src="checkout.js" defer></script>
-</body>
-</html>
+/* ─────────────────────────────────────────
+   MAIN
+───────────────────────────────────────── */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ─────────────────────────────────────────
+   SECTIONS
+───────────────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────
+   PRODUCT CARD
+───────────────────────────────────────── */
+.product-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  gap: 16px;
+  max-width: 520px;
+}
+
+.product-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.product-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.price-amount {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.price-currency {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+/* ─────────────────────────────────────────
+   OPTIONS BAR
+───────────────────────────────────────── */
+.options-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  flex-wrap: wrap;
+  max-width: 520px;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.option-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+
+.opt-btn:hover { color: var(--text-primary); }
+
+.opt-btn.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.option-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.option-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Muted hint when redirect is selected */
+.option-hint.redirect-note {
+  color: var(--live);
+  font-style: normal;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+}
+
+/* ─────────────────────────────────────────
+   PAGE LAYOUT (methods + inline panel)
+───────────────────────────────────────── */
+.page-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.methods-section {
+  flex: 0 0 auto;
+  width: 520px;
+  min-width: 0;
+}
+
+/* ─────────────────────────────────────────
+   METHOD LIST
+───────────────────────────────────────── */
+.method-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.method-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--transition);
+  position: relative;
+}
+
+.method-row:last-child { border-bottom: none; }
+
+.method-row:hover { background: var(--surface-2); }
+
+.method-row:hover .method-arrow {
+  transform: translateX(3px);
+  color: var(--accent);
+}
+
+.method-row.active-inline {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+}
+
+.method-row.active-inline .method-arrow { color: var(--accent); }
+
+.method-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.method-meta {
+  flex-shrink: 0;
+  width: 130px;
+}
+
+.method-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+.method-body { flex: 1; }
+
+.method-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.method-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.method-arrow {
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: transform var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.method-row.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.method-row.loading .method-arrow {
+  animation: pulse 1s ease infinite;
+}
+
+/* ─────────────────────────────────────────
+   INLINE PANEL
+───────────────────────────────────────── */
+.inline-panel {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  /* Matches sticky behaviour so it stays in view */
+  position: sticky;
+  top: 76px;
+}
+
+.inline-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.inline-panel-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--tag-text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+}
+
+.inline-panel-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.inline-panel-body {
+  padding: 20px;
+  min-height: 280px;
+}
+
+/* Empty state */
+.inline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 240px;
+  text-align: center;
+}
+
+.inline-empty-icon {
+  font-size: 28px;
+  color: var(--border-hover);
+}
+
+.inline-empty-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 220px;
+  line-height: 1.6;
+}
+
+/* Toolkit container inside inline panel */
+#toolkit-container {
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   MODAL
+───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-overlay.hidden { display: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.18s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 7px;
+}
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 24px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ─────────────────────────────────────────
+   REDIRECT STATE
+───────────────────────────────────────── */
+.redirect-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 0;
+  text-align: center;
+}
+
+.redirect-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.redirect-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.redirect-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.redirect-url {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ─────────────────────────────────────────
+   UTILITY
+───────────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .page-layout {
+    flex-direction: column;
+  }
+  .methods-section {
+    width: 100%;
+  }
+  .inline-panel {
+    position: static;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-inner { padding: 0 16px; }
+  .main { padding: 20px 16px 60px; }
+  .env-banner { margin: 12px 16px 0; }
+  .product-card { max-width: 100%; }
+  .options-bar { max-width: 100%; }
+  .method-meta { width: auto; }
+  .method-desc { display: none; }
+  .modal { max-height: 95vh; }
+}
