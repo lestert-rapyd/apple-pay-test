@@ -58,46 +58,100 @@
       </div>
     </section>
 
-    <!-- Payment Methods -->
+    <!-- Options -->
     <section class="section">
-      <div class="section-label">PAYMENT METHOD</div>
-      <div class="method-list">
+      <div class="section-label">OPTIONS</div>
+      <div class="options-bar">
 
-        <button class="method-row" id="pay-hosted-page">
-          <div class="method-meta">
-            <span class="method-tag">REDIRECT</span>
+        <!-- Display Mode Toggle -->
+        <div class="option-group">
+          <span class="option-label">Display</span>
+          <div class="option-toggle" id="display-toggle">
+            <button class="opt-btn active" data-display="modal">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="3" width="6" height="6" rx="1" fill="currentColor" opacity="0.4"/></svg>
+              Modal
+            </button>
+            <button class="opt-btn" data-display="inline">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="1" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+              Inline
+            </button>
           </div>
-          <div class="method-body">
-            <div class="method-title">Hosted Checkout Page</div>
-            <div class="method-desc">Redirects the customer to a Rapyd-hosted payment page. Supports all available payment methods for the merchant's country.</div>
-          </div>
-          <div class="method-arrow">→</div>
-        </button>
+        </div>
 
-        <button class="method-row" id="pay-toolkit">
-          <div class="method-meta">
-            <span class="method-tag">IFRAME</span>
-          </div>
-          <div class="method-body">
-            <div class="method-title">Embedded Checkout — Full</div>
-            <div class="method-desc">Renders the full Rapyd Checkout Toolkit inline. Cards, bank transfers, and digital wallets in a single embedded experience.</div>
-          </div>
-          <div class="method-arrow">→</div>
-        </button>
+        <div class="option-divider"></div>
 
-        <button class="method-row" id="pay-toolkit-wallets">
-          <div class="method-meta">
-            <span class="method-tag">IFRAME · WALLETS</span>
+        <!-- 3DS Toggle -->
+        <div class="option-group">
+          <span class="option-label">3D Secure</span>
+          <div class="option-toggle" id="tds-toggle">
+            <button class="opt-btn" data-tds="false">Off</button>
+            <button class="opt-btn active" data-tds="true">On</button>
           </div>
-          <div class="method-body">
-            <div class="method-title">Embedded Checkout — Digital Wallets</div>
-            <div class="method-desc">Renders Apple Pay and Google Pay buttons only. Ideal for one-tap checkout experiences on supported devices.</div>
-          </div>
-          <div class="method-arrow">→</div>
-        </button>
+          <span class="option-hint" id="tds-hint">Applied to embedded flows</span>
+        </div>
 
       </div>
     </section>
+
+    <!-- Page layout: left = methods, right = inline panel -->
+    <div class="page-layout" id="page-layout">
+
+      <!-- Payment Methods -->
+      <section class="section methods-section">
+        <div class="section-label">PAYMENT METHOD</div>
+        <div class="method-list">
+
+          <button class="method-row" id="pay-hosted-page">
+            <div class="method-meta">
+              <span class="method-tag">REDIRECT</span>
+            </div>
+            <div class="method-body">
+              <div class="method-title">Hosted Checkout Page</div>
+              <div class="method-desc">Redirects the customer to a Rapyd-hosted payment page. Supports all available payment methods for the merchant's country.</div>
+            </div>
+            <div class="method-arrow">→</div>
+          </button>
+
+          <button class="method-row" id="pay-toolkit">
+            <div class="method-meta">
+              <span class="method-tag">IFRAME</span>
+            </div>
+            <div class="method-body">
+              <div class="method-title">Embedded Checkout — Full</div>
+              <div class="method-desc">Renders the full Rapyd Checkout Toolkit inline. Cards, bank transfers, and digital wallets in a single embedded experience.</div>
+            </div>
+            <div class="method-arrow">→</div>
+          </button>
+
+          <button class="method-row" id="pay-toolkit-wallets">
+            <div class="method-meta">
+              <span class="method-tag">IFRAME · WALLETS</span>
+            </div>
+            <div class="method-body">
+              <div class="method-title">Embedded Checkout — Digital Wallets</div>
+              <div class="method-desc">Renders Apple Pay and Google Pay buttons only. Ideal for one-tap checkout experiences on supported devices.</div>
+            </div>
+            <div class="method-arrow">→</div>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- Inline Panel (hidden by default, shown when display=inline) -->
+      <div class="inline-panel hidden" id="inline-panel">
+        <div class="inline-panel-header">
+          <span class="inline-panel-tag" id="inline-panel-tag"></span>
+          <span class="inline-panel-title" id="inline-panel-title">Select a payment method</span>
+        </div>
+        <div class="inline-panel-body" id="inline-panel-body">
+          <div class="inline-empty">
+            <div class="inline-empty-icon">⬡</div>
+            <div class="inline-empty-text">Select a payment method to preview the checkout experience.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-layout -->
 
   </main>
 
@@ -111,9 +165,7 @@
         </div>
         <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- Dynamic content -->
-      </div>
+      <div class="modal-body" id="modal-body"></div>
     </div>
   </div>
 
