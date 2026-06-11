@@ -1,10 +1,8 @@
 const BACKEND_URL = 'https://rapyd-backend.vercel.app';
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let currentEnv     = 'sandbox';
-let currentDisplay = 'modal';   // 'modal' | 'inline'
-let current3DS     = true;      // true | false
-let currentCheckoutSession = null;
+// Env is global; display + 3DS are per-method (read from each card at launch).
+let currentEnv = 'sandbox';
 
 const product = {
   name:        'Developer Test Kit',
@@ -15,18 +13,14 @@ const product = {
 };
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
-const modalOverlay   = document.getElementById('modal-overlay');
-const modalTag       = document.getElementById('modal-tag');
-const modalTitle     = document.getElementById('modal-title');
-const modalBody      = document.getElementById('modal-body');
-const modalClose     = document.getElementById('modal-close');
-const envBanner      = document.getElementById('env-banner');
-const envBannerText  = document.getElementById('env-banner-text');
-const envToggle      = document.getElementById('env-toggle');
-const displayToggle  = document.getElementById('display-toggle');
-const tdsToggle      = document.getElementById('tds-toggle');
-const tdsHint        = document.getElementById('tds-hint');
-const inlinePanel    = document.getElementById('inline-panel');
+const modalOverlay     = document.getElementById('modal-overlay');
+const modalTag         = document.getElementById('modal-tag');
+const modalTitle       = document.getElementById('modal-title');
+const modalBody        = document.getElementById('modal-body');
+const modalClose       = document.getElementById('modal-close');
+const envBanner        = document.getElementById('env-banner');
+const envBannerText    = document.getElementById('env-banner-text');
+const envToggle        = document.getElementById('env-toggle');
 const inlinePanelTag   = document.getElementById('inline-panel-tag');
 const inlinePanelTitle = document.getElementById('inline-panel-title');
 const inlinePanelBody  = document.getElementById('inline-panel-body');
@@ -37,7 +31,6 @@ envToggle.querySelectorAll('.env-btn').forEach(btn => {
     const env = btn.dataset.env;
     if (env === currentEnv) return;
     currentEnv = env;
-    currentCheckoutSession = null;
 
     envToggle.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -50,66 +43,35 @@ envToggle.querySelectorAll('.env-btn').forEach(btn => {
       envBannerText.innerHTML = `Connected to <strong>Sandbox</strong> — test transactions only, no real charges.`;
     }
 
-    // Clear inline panel on env switch
     resetInlinePanel();
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active-inline'));
     console.log('[rapyd-demo] env:', currentEnv);
   });
 });
 
-// ─── Display Toggle ───────────────────────────────────────────────────────────
-displayToggle.querySelectorAll('.opt-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const display = btn.dataset.display;
-    if (display === currentDisplay) return;
-    currentDisplay = display;
-    currentCheckoutSession = null;
-
-    displayToggle.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    if (display === 'inline') {
-      inlinePanel.classList.remove('hidden');
-    } else {
-      inlinePanel.classList.add('hidden');
-      resetInlinePanel();
-    }
-
-    // Clear active-inline highlight
-    document.querySelectorAll('.method-row').forEach(r => r.classList.remove('active-inline'));
-    console.log('[rapyd-demo] display:', currentDisplay);
+// ─── Per-method config toggles (Display / 3DS) ────────────────────────────────
+document.querySelectorAll('.method-card').forEach(card => {
+  card.querySelectorAll('.mini-toggle').forEach(toggle => {
+    const key = toggle.dataset.config; // 'display' | 'tds'
+    toggle.querySelectorAll('.mini-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        toggle.querySelectorAll('.mini-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        card.dataset[key] = btn.dataset.val;
+        console.log(`[rapyd-demo] ${card.dataset.method} ${key}:`, btn.dataset.val);
+      });
+    });
   });
 });
 
-// ─── 3DS Toggle ───────────────────────────────────────────────────────────────
-tdsToggle.querySelectorAll('.opt-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const val = btn.dataset.tds === 'true';
-    if (val === current3DS) return;
-    current3DS = val;
-    currentCheckoutSession = null; // invalidate — 3DS changes the session payload
-
-    tdsToggle.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    console.log('[rapyd-demo] 3DS:', current3DS);
-  });
-});
-
-// Update 3DS hint when redirect row is hovered / active
-function update3DSHint(methodId) {
-  if (methodId === 'pay-hosted-page') {
-    tdsHint.textContent = 'Managed by Rapyd on hosted pages';
-    tdsHint.classList.add('redirect-note');
-  } else {
-    tdsHint.textContent = 'Applied to embedded flows';
-    tdsHint.classList.remove('redirect-note');
-  }
+function getCardConfig(method) {
+  const card = document.querySelector(`.method-card[data-method="${method}"]`);
+  return {
+    card,
+    display: card.dataset.display,
+    tds:     card.dataset.tds === 'true',
+  };
 }
-
-document.querySelectorAll('.method-row').forEach(row => {
-  row.addEventListener('mouseenter', () => update3DSHint(row.id));
-  row.addEventListener('mouseleave', () => update3DSHint(null));
-});
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 function openModal(tag, title, contentHTML) {
@@ -130,37 +92,35 @@ modalClose.addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-// ─── Inline Panel ─────────────────────────────────────────────────────────────
+// ─── Inline Preview Panel ─────────────────────────────────────────────────────
 function openInlinePanel(tag, title, contentHTML) {
   inlinePanelTag.textContent   = tag;
   inlinePanelTitle.textContent = title;
+  inlinePanelBody.style.backgroundImage = 'none'; // drop dot grid when content is live
   inlinePanelBody.innerHTML    = contentHTML;
 }
 
 function resetInlinePanel() {
-  inlinePanelTag.textContent   = '';
-  inlinePanelTitle.textContent = 'Select a payment method';
-  inlinePanelBody.innerHTML    = `
+  inlinePanelTag.textContent   = 'IDLE';
+  inlinePanelTitle.textContent = 'No active session';
+  inlinePanelBody.style.backgroundImage = '';
+  inlinePanelBody.innerHTML = `
     <div class="inline-empty">
       <div class="inline-empty-icon">⬡</div>
-      <div class="inline-empty-text">Select a payment method to preview the checkout experience.</div>
+      <div class="inline-empty-text">Set a method to <strong>Inline</strong> and launch it to preview the embedded checkout here.</div>
+      <div class="inline-empty-sub">Methods set to <strong>Modal</strong> open in an overlay instead.</div>
     </div>
   `;
 }
 
-// ─── Loading State ────────────────────────────────────────────────────────────
-function setLoading(btn, isLoading) {
-  if (isLoading) {
-    btn.classList.add('loading');
-  } else {
-    btn.classList.remove('loading');
-  }
+// ─── Loading ──────────────────────────────────────────────────────────────────
+function setCardLoading(card, isLoading) {
+  card.classList.toggle('loading', isLoading);
 }
 
 // ─── Checkout Session ─────────────────────────────────────────────────────────
-async function createCheckoutSession() {
-  if (currentCheckoutSession) return currentCheckoutSession;
-
+// Always creates a fresh session — per-method 3DS means no safe shared cache.
+async function createCheckoutSession(tds) {
   const payload = {
     amount:                product.amount,
     currency:              product.currency,
@@ -172,13 +132,9 @@ async function createCheckoutSession() {
     cancel_checkout_url:   'https://www.rapydtoolkit.com',
     complete_payment_url:  'https://www.rapyd.net',
     error_payment_url:     'https://www.rapyd.net',
-    custom_elements: {
-      display_description: true,
-    },
+    custom_elements: { display_description: true },
     payment_method_type_categories: ['card', 'bank_transfer', 'bank_redirect', 'cash'],
-    payment_method_options: {
-      '3d_required': current3DS,
-    },
+    payment_method_options: { '3d_required': tds },
     env: currentEnv,
   };
 
@@ -189,10 +145,7 @@ async function createCheckoutSession() {
   });
 
   if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
-  const data = await res.json();
-  currentCheckoutSession = data;
-  return data;
+  return res.json();
 }
 
 // ─── Load Toolkit Script ──────────────────────────────────────────────────────
@@ -211,8 +164,8 @@ function loadRapydToolkitScript(env) {
   });
 }
 
-// ─── Render Toolkit ───────────────────────────────────────────────────────────
-function renderToolkit(checkoutId) {
+// ─── Render Toolkit (full) ────────────────────────────────────────────────────
+function renderToolkit(checkoutId, display) {
   const checkout = new RapydCheckoutToolkit({
     id:                           checkoutId,
     pay_button_text:              'Pay Now',
@@ -226,19 +179,11 @@ function renderToolkit(checkoutId) {
   });
 
   checkout.displayCheckout();
-
-  window.addEventListener('onCheckoutPaymentSuccess', () => {
-    closeModal();
-    showToast('✅ Payment succeeded');
-  }, { once: true });
-
-  window.addEventListener('onCheckoutPaymentFailure', () => {
-    showToast('❌ Payment failed', 'error');
-  }, { once: true });
+  bindCheckoutEvents(display);
 }
 
-// ─── Render Wallets Only ──────────────────────────────────────────────────────
-function renderToolkitWallets(checkoutId) {
+// ─── Render Toolkit (wallets only) ────────────────────────────────────────────
+function renderToolkitWallets(checkoutId, display) {
   const checkout = new RapydCheckoutToolkit({
     id:                           checkoutId,
     pay_button_text:              'Pay Now',
@@ -256,60 +201,67 @@ function renderToolkitWallets(checkoutId) {
   });
 
   checkout.displayCheckout();
+  bindCheckoutEvents(display);
 
-  window.addEventListener('onCheckoutPaymentSuccess', (e) => {
-    console.log('[rapyd-demo] success:', e.detail);
-    closeModal();
+  window.addEventListener('onCheckoutPaymentPending', (e) => { console.log('[rapyd-demo] pending:', e.detail); }, { once: true });
+  window.addEventListener('onCheckoutPaymentExpired', (e) => { console.log('[rapyd-demo] expired:', e.detail); }, { once: true });
+  window.addEventListener('onLoading',                (e) => { console.log('[rapyd-demo] loading:', e.detail?.loading); }, { once: true });
+}
+
+// ─── Shared checkout event binding ────────────────────────────────────────────
+function bindCheckoutEvents(display) {
+  window.addEventListener('onCheckoutPaymentSuccess', () => {
+    if (display === 'modal') closeModal();
+    else resetInlinePanel();
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active-inline'));
     showToast('✅ Payment succeeded');
   }, { once: true });
 
-  window.addEventListener('onCheckoutPaymentFailure', (e) => {
-    console.log('[rapyd-demo] failure:', e.detail?.error);
+  window.addEventListener('onCheckoutPaymentFailure', () => {
     showToast('❌ Payment failed', 'error');
   }, { once: true });
-
-  window.addEventListener('onCheckoutPaymentPending',  (e) => { console.log('[rapyd-demo] pending:', e.detail); },  { once: true });
-  window.addEventListener('onCheckoutPaymentExpired',  (e) => { console.log('[rapyd-demo] expired:', e.detail); },  { once: true });
-  window.addEventListener('onLoading',                 (e) => { console.log('[rapyd-demo] loading:', e.detail?.loading); }, { once: true });
 }
 
-// ─── Shared: launch checkout (modal or inline) ────────────────────────────────
-async function launchCheckout({ btnId, tag, title, renderFn }) {
-  const btn = document.getElementById(btnId);
-  setLoading(btn, true);
+// ─── Launch: embedded methods ─────────────────────────────────────────────────
+async function launchEmbedded(method) {
+  const { card, display, tds } = getCardConfig(method);
+  const isWallets = method === 'wallets';
+  const tag      = isWallets ? 'IFRAME · WALLETS' : 'IFRAME';
+  const title    = isWallets ? 'Embedded Checkout — Digital Wallets' : 'Embedded Checkout — Full';
+  const renderFn = isWallets ? renderToolkitWallets : renderToolkit;
 
+  setCardLoading(card, true);
   const toolkitHTML = `<div id="toolkit-container"><div id="rapyd-checkout"></div></div>`;
 
-  if (currentDisplay === 'modal') {
+  if (display === 'modal') {
     openModal(tag, title, toolkitHTML);
   } else {
-    document.querySelectorAll('.method-row').forEach(r => r.classList.remove('active-inline'));
-    btn.classList.add('active-inline');
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active-inline'));
+    card.classList.add('active-inline');
     openInlinePanel(tag, title, toolkitHTML);
   }
 
   try {
-    const data = await createCheckoutSession();
+    const data = await createCheckoutSession(tds);
     const id   = data?.data?.id;
     if (!id) throw new Error('No checkout ID returned');
 
     await loadRapydToolkitScript(currentEnv);
-    renderFn(id);
+    renderFn(id, display);
   } catch (err) {
-    if (currentDisplay === 'modal') closeModal();
-    else resetInlinePanel();
+    if (display === 'modal') closeModal();
+    else { resetInlinePanel(); card.classList.remove('active-inline'); }
     showToast(`Error: ${err.message}`, 'error');
   } finally {
-    setLoading(btn, false);
+    setCardLoading(card, false);
   }
 }
 
-// ─── Button: Hosted Redirect ──────────────────────────────────────────────────
-document.getElementById('pay-hosted-page').addEventListener('click', async function () {
-  const btn = this;
-  setLoading(btn, true);
+// ─── Launch: hosted redirect ──────────────────────────────────────────────────
+async function launchHosted() {
+  const { card, tds } = getCardConfig('hosted');
+  setCardLoading(card, true);
 
-  // Redirect always opens modal with status message — inline doesn't make sense for redirect
   openModal('REDIRECT', 'Hosted Checkout Page', `
     <div class="redirect-state">
       <div class="redirect-spinner"></div>
@@ -319,7 +271,7 @@ document.getElementById('pay-hosted-page').addEventListener('click', async funct
   `);
 
   try {
-    const data = await createCheckoutSession();
+    const data = await createCheckoutSession(tds);
     const url  = data?.data?.redirect_url;
     if (!url) throw new Error('No redirect URL returned');
 
@@ -337,32 +289,20 @@ document.getElementById('pay-hosted-page').addEventListener('click', async funct
     `;
 
     setTimeout(() => { window.location.href = url; }, 1400);
-
   } catch (err) {
     closeModal();
     showToast(`Error: ${err.message}`, 'error');
   } finally {
-    setLoading(btn, false);
+    setCardLoading(card, false);
   }
-});
+}
 
-// ─── Button: Embedded Full ────────────────────────────────────────────────────
-document.getElementById('pay-toolkit').addEventListener('click', () => {
-  launchCheckout({
-    btnId:    'pay-toolkit',
-    tag:      'IFRAME',
-    title:    'Embedded Checkout — Full',
-    renderFn: renderToolkit,
-  });
-});
-
-// ─── Button: Embedded Wallets ─────────────────────────────────────────────────
-document.getElementById('pay-toolkit-wallets').addEventListener('click', () => {
-  launchCheckout({
-    btnId:    'pay-toolkit-wallets',
-    tag:      'IFRAME · WALLETS',
-    title:    'Embedded Checkout — Digital Wallets',
-    renderFn: renderToolkitWallets,
+// ─── Launch button wiring ─────────────────────────────────────────────────────
+document.querySelectorAll('.launch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const method = btn.dataset.launch;
+    if (method === 'hosted') launchHosted();
+    else launchEmbedded(method);
   });
 });
 
@@ -381,19 +321,11 @@ function showToast(message, type = 'success') {
     style.id = 'toast-styles';
     style.textContent = `
       .toast {
-        position: fixed;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-family: var(--font-sans);
-        font-size: 13px;
-        font-weight: 500;
-        background: #0F0F0F;
-        color: #FAFAFA;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-        z-index: 999;
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+        padding: 10px 20px; border-radius: 6px;
+        font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+        background: #0F0F0F; color: #FAFAFA;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 999;
         animation: toastIn 0.2s ease;
       }
       .toast-error { background: #DC2626; }
