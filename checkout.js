@@ -173,7 +173,7 @@ function renderToolkit(checkoutId, display) {
     pay_button_color:             '#0057FF',
     wait_on_payment_confirmation: true,
     wait_on_payment_redirect:     false,
-    close_on_complete:            false,
+    close_on_complete:            true,
     page_type:                    'collection',
     digital_wallets_buttons_only: false,
     digital_wallets_include_methods: ['google_pay', 'apple_pay'],
