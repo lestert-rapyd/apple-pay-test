@@ -57,6 +57,35 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 
+// ─── Heartbeat line (updated in place by the poller) ──────────────────────────
+let heartbeatLine = null;
+
+function updateHeartbeat(count, status, startedAt) {
+  const elapsed = Math.round((Date.now() - startedAt) / 1000);
+  const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+
+  if (!heartbeatLine) {
+    const placeholder = document.getElementById('console-placeholder');
+    if (placeholder) placeholder.remove();
+    heartbeatLine = document.createElement('div');
+    heartbeatLine.className = 'console-line console-line-heartbeat';
+    eventConsole.appendChild(heartbeatLine);
+  }
+
+  heartbeatLine.innerHTML = `
+    <span class="console-time">${time}</span>
+    <span class="console-source src-poll">POLL</span>
+    <span class="console-msg">#${count} · status: ${escapeHTML(status ?? '…')} · ${elapsed}s elapsed</span>
+  `;
+  // Keep heartbeat as the last line
+  eventConsole.appendChild(heartbeatLine);
+  eventConsole.scrollTop = eventConsole.scrollHeight;
+}
+
+function removeHeartbeat() {
+  if (heartbeatLine) { heartbeatLine.remove(); heartbeatLine = null; }
+}
+
 consoleClear.addEventListener('click', () => {
   eventConsole.innerHTML = '';
   logEvent('system', 'Console cleared.');
@@ -67,20 +96,27 @@ consoleClear.addEventListener('click', () => {
 // reaches a terminal status. Demo-only pattern — in production, webhooks remain
 // the canonical way to learn payment outcomes (a closed tab can't poll).
 const TERMINAL_STATUSES = ['CLO', 'ERR', 'EXP', 'CAN'];
+let pollCount = 0;
+let pollStartedAt = null;
 
 async function pollPaymentStatus() {
   if (!currentPaymentId) return;
+
+  pollCount += 1;
 
   try {
     const res = await fetch(
       `${BACKEND_URL}/api/retrieve-payment?id=${encodeURIComponent(currentPaymentId)}&env=${currentEnv}`
     );
-    if (!res.ok) return;
+    if (!res.ok) { updateHeartbeat(pollCount, lastPolledStatus, pollStartedAt); return; }
     const data = await res.json();
     const p = data?.data;
-    if (!p) return;
+    if (!p) { updateHeartbeat(pollCount, lastPolledStatus, pollStartedAt); return; }
 
-    // Log only on change to keep the console readable
+    // Heartbeat: every tick, updated in place
+    updateHeartbeat(pollCount, p.status, pollStartedAt);
+
+    // Permanent line: only on status change
     if (p.status !== lastPolledStatus) {
       lastPolledStatus = p.status;
       logEvent('poll', `Retrieve Payment → status: ${p.status}`, {
@@ -99,6 +135,7 @@ async function pollPaymentStatus() {
       }
     }
   } catch (err) {
+    updateHeartbeat(pollCount, lastPolledStatus, pollStartedAt);
     console.warn('[rapyd-demo] status poll error:', err.message);
   }
 }
@@ -107,6 +144,8 @@ function startPaymentPolling() {
   if (paymentPollTimer || !currentPaymentId) return;
   statusPollToggle.checked = true;
   lastPolledStatus = null;
+  pollCount = 0;
+  pollStartedAt = Date.now();
   logEvent('system', `Status polling started (every 3s) → GET /api/retrieve-payment?id=${currentPaymentId}`);
   logEvent('system', 'Note: polling is a demo pattern. In production, use webhooks for reconciliation.');
   pollPaymentStatus();
@@ -117,6 +156,7 @@ function stopPaymentPolling() {
   clearInterval(paymentPollTimer);
   paymentPollTimer = null;
   statusPollToggle.checked = false;
+  removeHeartbeat();
 }
 
 statusPollToggle.addEventListener('change', () => {
