@@ -85,7 +85,7 @@
           </div>
 
           <!-- IFRAME FULL -->
-          <div class="method-card" data-method="toolkit" data-display="modal" data-tds="true">
+          <div class="method-card" data-method="toolkit" data-display="modal" data-tds="true" data-tdsmode="toolkit">
             <div class="method-head">
               <span class="method-tag">IFRAME</span>
               <div class="method-body">
@@ -106,6 +106,13 @@
                 <div class="mini-toggle" data-config="tds">
                   <button class="mini-btn" data-val="false">Off</button>
                   <button class="mini-btn active" data-val="true">On</button>
+                </div>
+              </div>
+              <div class="config-group">
+                <span class="config-label">3DS Handling</span>
+                <div class="mini-toggle" data-config="tdsmode">
+                  <button class="mini-btn active" data-val="toolkit">Toolkit-managed</button>
+                  <button class="mini-btn" data-val="manual">Manual</button>
                 </div>
               </div>
               <button class="launch-btn" data-launch="toolkit">Launch <span class="launch-arrow">→</span></button>
@@ -166,6 +173,30 @@
       </section>
 
     </div><!-- /page-layout -->
+
+    <!-- Event Console -->
+    <section class="section">
+      <div class="console-header">
+        <div class="col-label" style="height:auto;">
+          <span class="col-label-main">EVENT CONSOLE</span>
+          <span class="col-label-hint">payment lifecycle, step by step</span>
+        </div>
+        <div class="console-actions">
+          <label class="console-poll-toggle">
+            <input type="checkbox" id="status-poll-toggle" />
+            <span>Poll payment status</span>
+          </label>
+          <button class="console-clear" id="console-clear">Clear</button>
+        </div>
+      </div>
+      <div class="event-console" id="event-console">
+        <div class="console-line console-line-muted" id="console-placeholder">
+          <span class="console-time">--:--:--</span>
+          <span class="console-source">SYSTEM</span>
+          <span class="console-msg">Waiting for events. Launch a payment method to begin.</span>
+        </div>
+      </div>
+    </section>
 
   </main>
 
