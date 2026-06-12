@@ -561,6 +561,105 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 /* ─────────────────────────────────────────
+   EVENT CONSOLE
+───────────────────────────────────────── */
+.console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.console-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.console-poll-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+
+.console-poll-toggle input { accent-color: var(--accent); cursor: pointer; }
+
+.console-clear {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.console-clear:hover { background: var(--surface-2); color: var(--text-primary); }
+
+.event-console {
+  background: #0F1115;
+  border: 1px solid #23262D;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.console-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: #C9CDD4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console-line-muted { color: #565B66; }
+
+.console-time { color: #565B66; flex-shrink: 0; }
+
+.console-source {
+  flex-shrink: 0;
+  width: 76px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.console-source.src-app      { color: #7AA2F7; }  /* frontend actions   */
+.console-source.src-api      { color: #9ECE6A; }  /* backend/API calls  */
+.console-source.src-toolkit  { color: #BB9AF7; }  /* toolkit JS events  */
+.console-source.src-poll     { color: #E0AF68; }  /* status polling     */
+.console-source.src-error    { color: #F7768E; }
+.console-source.src-system   { color: #565B66; }
+
+.console-msg { flex: 1; }
+
+.console-data {
+  color: #565B66;
+  display: block;
+  padding-left: 0;
+  font-size: 10.5px;
+}
+
+/* ─────────────────────────────────────────
    UTILITY
 ───────────────────────────────────────── */
 .hidden { display: none !important; }
