@@ -172,31 +172,31 @@
         </div>
       </section>
 
-    </div><!-- /page-layout -->
+      <!-- RIGHT-MOST: event console -->
+      <section class="col col-console">
+        <div class="console-header">
+          <div class="col-label" style="height:auto;">
+            <span class="col-label-main">EVENT CONSOLE</span>
+            <span class="col-label-hint">step by step</span>
+          </div>
+          <div class="console-actions">
+            <label class="console-poll-toggle">
+              <input type="checkbox" id="status-poll-toggle" />
+              <span>Poll status</span>
+            </label>
+            <button class="console-clear" id="console-clear">Clear</button>
+          </div>
+        </div>
+        <div class="event-console" id="event-console">
+          <div class="console-line console-line-muted" id="console-placeholder">
+            <span class="console-time">--:--:--</span>
+            <span class="console-source">SYSTEM</span>
+            <span class="console-msg">Waiting for events. Launch a payment method to begin.</span>
+          </div>
+        </div>
+      </section>
 
-    <!-- Event Console -->
-    <section class="section">
-      <div class="console-header">
-        <div class="col-label" style="height:auto;">
-          <span class="col-label-main">EVENT CONSOLE</span>
-          <span class="col-label-hint">payment lifecycle, step by step</span>
-        </div>
-        <div class="console-actions">
-          <label class="console-poll-toggle">
-            <input type="checkbox" id="status-poll-toggle" />
-            <span>Poll payment status</span>
-          </label>
-          <button class="console-clear" id="console-clear">Clear</button>
-        </div>
-      </div>
-      <div class="event-console" id="event-console">
-        <div class="console-line console-line-muted" id="console-placeholder">
-          <span class="console-time">--:--:--</span>
-          <span class="console-source">SYSTEM</span>
-          <span class="console-msg">Waiting for events. Launch a payment method to begin.</span>
-        </div>
-      </div>
-    </section>
+    </div><!-- /page-layout -->
 
   </main>
 
