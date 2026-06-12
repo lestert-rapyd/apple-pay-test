@@ -63,7 +63,7 @@ body {
 }
 
 .header-inner {
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 24px;
   height: 56px;
@@ -123,7 +123,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 20px auto 0;
   padding: 10px 16px;
   border-radius: var(--radius);
@@ -141,7 +141,7 @@ body {
    MAIN
 ───────────────────────────────────────── */
 .main {
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 32px 24px 80px;
   display: flex;
@@ -189,8 +189,8 @@ body {
 ───────────────────────────────────────── */
 .page-layout {
   display: grid;
-  grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr) minmax(0, 380px);
+  gap: 24px;
   align-items: start;
 }
 
@@ -454,6 +454,12 @@ body {
   animation: fadeIn 0.15s ease;
 }
 
+/* On wide screens, center the modal in the space LEFT of the console rail
+   (console ≈ 380px + gap), so the always-on-top console is never covered. */
+@media (min-width: 1200px) {
+  .modal-overlay { padding-right: 428px; }
+}
+
 .modal-overlay.hidden { display: none; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -561,8 +567,16 @@ body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 /* ─────────────────────────────────────────
-   EVENT CONSOLE
+   EVENT CONSOLE (third column)
 ───────────────────────────────────────── */
+/* The console rail paints ABOVE the modal overlay (z-index 300 > 200) so the
+   event stream stays visible and interactive during modal flows. */
+.col-console {
+  position: sticky;
+  top: 76px;
+  z-index: 300;
+}
+
 .console-header {
   display: flex;
   align-items: center;
@@ -616,12 +630,22 @@ body {
   font-family: var(--font-mono);
   font-size: 11.5px;
   line-height: 1.7;
-  max-height: 320px;
+  height: calc(100vh - 180px);
+  min-height: 280px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
+/* Heartbeat line — updated in place by the poller */
+.console-line-heartbeat { color: #565B66; }
+.console-line-heartbeat .console-msg::after {
+  content: '▍';
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+@keyframes blink { 50% { opacity: 0; } }
 
 .console-line {
   display: flex;
@@ -667,6 +691,21 @@ body {
 /* ─────────────────────────────────────────
    RESPONSIVE
 ───────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .page-layout {
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  }
+  .col-console {
+    grid-column: 1 / -1;
+    position: static;
+    z-index: auto;
+  }
+  .event-console {
+    height: auto;
+    max-height: 320px;
+  }
+}
+
 @media (max-width: 900px) {
   .page-layout { grid-template-columns: 1fr; }
   .inline-panel { position: static; }
